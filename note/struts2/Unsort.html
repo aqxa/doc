@@ -43,12 +43,174 @@
 </code></pre>
 </div>
 
-<p><strong>EL 表达式如何取值</strong></p>
+<h1 id="section">关键项</h1>
+
+<ul>
+  <li>用 RequestMap 包装了 HttpServletRequest。</li>
+  <li>用 ApplicationMap 包装了 ServletContext。</li>
+  <li>用 SessionMap 包装了 HttpSession。</li>
+  <li>用 HashMap 包装了 request.getParameterMap()。</li>
+  <li>用 AttributeMap 包装了 extraContext。</li>
+  <li>标准 OGNL 要想访问 context 中的变量必须有 <code class="highlighter-rouge">#</code> 标记，<code class="highlighter-rouge">root</code> 必须是有特定属性的对象，但在 XWork 中就不同了，<code class="highlighter-rouge">root</code> 可以是一个 <code class="highlighter-rouge">List</code>，包含一系列的 <code class="highlighter-rouge">root</code>。</li>
+</ul>
+
+<h1 id="ognl-">OGNL 大概怎么找值的？</h1>
+
+<p>com.opensymphony.xwork2.ognl.OgnlValueStack#tryFindValue(java.lang.String, java.lang.Class)</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="n">Object</span> <span class="nf">tryFindValue</span><span class="p">(</span><span class="n">String</span> <span class="n">expr</span><span class="o">,</span> <span class="n">Class</span> <span class="n">asType</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">OgnlException</span> <span class="o">{</span>
+    <span class="n">Object</span> <span class="n">value</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">expr</span> <span class="o">=</span> <span class="n">lookupForOverrides</span><span class="o">(</span><span class="n">expr</span><span class="o">);</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">(</span><span class="n">expr</span><span class="o">,</span> <span class="n">asType</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">value</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">findInContext</span><span class="o">(</span><span class="n">expr</span><span class="o">);</span>
+            <span class="k">return</span> <span class="n">converter</span><span class="o">.</span><span class="na">convertValue</span><span class="o">(</span><span class="n">getContext</span><span class="o">(),</span> <span class="n">value</span><span class="o">,</span> <span class="n">asType</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+        <span class="n">context</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">THROW_EXCEPTION_ON_FAILURE</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre>
+</div>
 
 <ol>
-  <li>从 HttpServletRequest 中获取。</li>
-  <li>如果 key 中不包含 <code class="highlighter-rouge">#</code>（避免无限循环 [具体原因不知]）, 再从 ValueStack 中取。</li>
+  <li>overrides 可以理解为存储表达式别名的 Map。</li>
+  <li>通过 getValue() 找:<br />
+  <code class="highlighter-rouge">java
+  private Object getValue(String expr, Class asType) throws OgnlException {
+   return ognlUtil.getValue(expr, context, root, asType);
+  }
+ </code></li>
+  <li>没有找到再到 context（这个 context 是通过 ValueStack.getContext() 获取的 ）中找。</li>
 </ol>
+
+<h1 id="extracontext-">extraContext 里有些什么</h1>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ActionContext</span><span class="o">.</span><span class="na">PARAMETERS</span><span class="o">,</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">(</span><span class="n">parameterMap</span><span class="o">));</span>
+<span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ActionContext</span><span class="o">.</span><span class="na">SESSION</span><span class="o">,</span> <span class="n">sessionMap</span><span class="o">);</span>
+<span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ActionContext</span><span class="o">.</span><span class="na">APPLICATION</span><span class="o">,</span> <span class="n">applicationMap</span><span class="o">);</span>
+
+<span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ActionContext</span><span class="o">.</span><span class="na">LOCALE</span><span class="o">,</span> <span class="n">locale</span><span class="o">);</span>
+
+<span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">StrutsStatics</span><span class="o">.</span><span class="na">HTTP_REQUEST</span><span class="o">,</span> <span class="n">request</span><span class="o">);</span>
+<span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">StrutsStatics</span><span class="o">.</span><span class="na">HTTP_RESPONSE</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+<span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">StrutsStatics</span><span class="o">.</span><span class="na">SERVLET_CONTEXT</span><span class="o">,</span> <span class="n">servletContext</span><span class="o">);</span>
+
+<span class="c1">// helpers to get access to request/session/application scope</span>
+<span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"request"</span><span class="o">,</span> <span class="n">requestMap</span><span class="o">);</span>
+<span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"session"</span><span class="o">,</span> <span class="n">sessionMap</span><span class="o">);</span>
+<span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"application"</span><span class="o">,</span> <span class="n">applicationMap</span><span class="o">);</span>
+<span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"parameters"</span><span class="o">,</span> <span class="n">parameterMap</span><span class="o">);</span>
+
+<span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"attr"</span><span class="o">,</span> <span class="n">attrMap</span><span class="o">);</span>
+
+<span class="c1">// ActionMapping(name=hello, namespace=/)</span>
+<span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ServletActionContext</span><span class="o">.</span><span class="na">ACTION_MAPPING</span><span class="o">,</span> <span class="n">mapping</span><span class="o">);</span>
+
+<span class="c1">// 在 serviceAction 方法里</span>
+<span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ActionContext</span><span class="o">.</span><span class="na">VALUE_STACK</span><span class="o">,</span> <span class="n">valueStackFactory</span><span class="o">.</span><span class="na">createValueStack</span><span class="o">(</span><span class="n">stack</span><span class="o">));</span>
+</code></pre>
+</div>
+
+<h1 id="section-1">关键代码</h1>
+
+<h2 id="actioncontext">创建 ActionContext</h2>
+
+<p>详情见：<code class="highlighter-rouge">org.apache.struts2.dispatcher.ng.PrepareOperations</code></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="n">ActionContext</span> <span class="nf">createActionContext</span><span class="p">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">ActionContext</span> <span class="n">ctx</span><span class="o">;</span>
+    <span class="n">Integer</span> <span class="n">counter</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="n">Integer</span> <span class="n">oldCounter</span> <span class="o">=</span> <span class="o">(</span><span class="n">Integer</span><span class="o">)</span> <span class="n">request</span><span class="o">.</span><span class="na">getAttribute</span><span class="o">(</span><span class="n">CLEANUP_RECURSION_COUNTER</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">oldCounter</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="n">oldCounter</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="n">ActionContext</span> <span class="n">oldContext</span> <span class="o">=</span> <span class="n">ActionContext</span><span class="o">.</span><span class="na">getContext</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">oldContext</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// detected existing context, so we are probably in a forward</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ActionContext</span><span class="o">(</span><span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;(</span><span class="n">oldContext</span><span class="o">.</span><span class="na">getContextMap</span><span class="o">()));</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="n">ValueStack</span> <span class="n">stack</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="na">getContainer</span><span class="o">().</span><span class="na">getInstance</span><span class="o">(</span><span class="n">ValueStackFactory</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">createValueStack</span><span class="o">();</span>
+        <span class="n">stack</span><span class="o">.</span><span class="na">getContext</span><span class="o">().</span><span class="na">putAll</span><span class="o">(</span><span class="n">dispatcher</span><span class="o">.</span><span class="na">createContextMap</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">,</span> <span class="kc">null</span><span class="o">));</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ActionContext</span><span class="o">(</span><span class="n">stack</span><span class="o">.</span><span class="na">getContext</span><span class="o">());</span>
+    <span class="o">}</span>
+    <span class="n">request</span><span class="o">.</span><span class="na">setAttribute</span><span class="o">(</span><span class="n">CLEANUP_RECURSION_COUNTER</span><span class="o">,</span> <span class="n">counter</span><span class="o">);</span>
+    <span class="n">ActionContext</span><span class="o">.</span><span class="na">setContext</span><span class="o">(</span><span class="n">ctx</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">ctx</span><span class="o">;</span>
+<span class="o">}</span>
+
+</code></pre>
+</div>
+
+<h2 id="contextmap">创建 ContextMap</h2>
+
+<p>详情见：<code class="highlighter-rouge">org.apache.struts2.dispatcher.Dispatcher</code></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">createContextMap</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">,</span>
+        <span class="n">ActionMapping</span> <span class="n">mapping</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="c1">// request map wrapping the http request objects</span>
+    <span class="n">Map</span> <span class="n">requestMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">RequestMap</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+
+    <span class="c1">// parameters map wrapping the http parameters.  ActionMapping parameters are now handled and applied separately</span>
+    <span class="n">Map</span> <span class="n">params</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getParameterMap</span><span class="o">());</span>
+
+    <span class="c1">// session map wrapping the http session</span>
+    <span class="n">Map</span> <span class="n">session</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SessionMap</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+
+    <span class="c1">// application map wrapping the ServletContext</span>
+    <span class="n">Map</span> <span class="n">application</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ApplicationMap</span><span class="o">(</span><span class="n">servletContext</span><span class="o">);</span>
+
+    <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">extraContext</span> <span class="o">=</span> <span class="n">createContextMap</span><span class="o">(</span><span class="n">requestMap</span><span class="o">,</span> <span class="n">params</span><span class="o">,</span> <span class="n">session</span><span class="o">,</span> <span class="n">application</span><span class="o">,</span> <span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">mapping</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ServletActionContext</span><span class="o">.</span><span class="na">ACTION_MAPPING</span><span class="o">,</span> <span class="n">mapping</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">extraContext</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">createContextMap</span><span class="o">(</span><span class="n">Map</span> <span class="n">requestMap</span><span class="o">,</span>
+                                <span class="n">Map</span> <span class="n">parameterMap</span><span class="o">,</span>
+                                <span class="n">Map</span> <span class="n">sessionMap</span><span class="o">,</span>
+                                <span class="n">Map</span> <span class="n">applicationMap</span><span class="o">,</span>
+                                <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span>
+                                <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">extraContext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">Object</span><span class="o">&gt;();</span>
+    <span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ActionContext</span><span class="o">.</span><span class="na">PARAMETERS</span><span class="o">,</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">(</span><span class="n">parameterMap</span><span class="o">));</span>
+    <span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ActionContext</span><span class="o">.</span><span class="na">SESSION</span><span class="o">,</span> <span class="n">sessionMap</span><span class="o">);</span>
+    <span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ActionContext</span><span class="o">.</span><span class="na">APPLICATION</span><span class="o">,</span> <span class="n">applicationMap</span><span class="o">);</span>
+
+    <span class="n">Locale</span> <span class="n">locale</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">defaultLocale</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">locale</span> <span class="o">=</span> <span class="n">LocalizedTextUtil</span><span class="o">.</span><span class="na">localeFromString</span><span class="o">(</span><span class="n">defaultLocale</span><span class="o">,</span> <span class="n">request</span><span class="o">.</span><span class="na">getLocale</span><span class="o">());</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="n">locale</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getLocale</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ActionContext</span><span class="o">.</span><span class="na">LOCALE</span><span class="o">,</span> <span class="n">locale</span><span class="o">);</span>
+
+    <span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">StrutsStatics</span><span class="o">.</span><span class="na">HTTP_REQUEST</span><span class="o">,</span> <span class="n">request</span><span class="o">);</span>
+    <span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">StrutsStatics</span><span class="o">.</span><span class="na">HTTP_RESPONSE</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+    <span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">StrutsStatics</span><span class="o">.</span><span class="na">SERVLET_CONTEXT</span><span class="o">,</span> <span class="n">servletContext</span><span class="o">);</span>
+
+    <span class="c1">// helpers to get access to request/session/application scope</span>
+    <span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"request"</span><span class="o">,</span> <span class="n">requestMap</span><span class="o">);</span>
+    <span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"session"</span><span class="o">,</span> <span class="n">sessionMap</span><span class="o">);</span>
+    <span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"application"</span><span class="o">,</span> <span class="n">applicationMap</span><span class="o">);</span>
+    <span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"parameters"</span><span class="o">,</span> <span class="n">parameterMap</span><span class="o">);</span>
+
+    <span class="n">AttributeMap</span> <span class="n">attrMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AttributeMap</span><span class="o">(</span><span class="n">extraContext</span><span class="o">);</span>
+    <span class="n">extraContext</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"attr"</span><span class="o">,</span> <span class="n">attrMap</span><span class="o">);</span>
+
+    <span class="k">return</span> <span class="n">extraContext</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre>
+</div>
 </div>
   </div>
 

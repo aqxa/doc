@@ -42,7 +42,7 @@
     <div class="container"><h1 id="section">参考链接</h1>
 
 <ul>
-  <li><a href="https://struts.apache.org/docs/ognl-basics.html">https://struts.apache.org/docs/ognl-basics.html</a></li>
+  <li><a href="https://struts.apache.org/docs/ognl-basics.html">https://struts.apache.org/docs/ognl-basics.html</a> - <a href="/OGNL Root and Context.html">OGNL Root and Context</a></li>
   <li><a href="https://struts.apache.org/docs/ognl.html">https://struts.apache.org/docs/ognl.html</a></li>
 </ul>
 
@@ -140,7 +140,7 @@ ${ session.name }
 
 <h2 id="section-5">存</h2>
 
-<p>通过 <code class="highlighter-rouge">ValueStack</code> 的 <code class="highlighter-rouge">push()</code> 方法：</p>
+<p>通过 <code class="highlighter-rouge">ValueStack</code> 的 <code class="highlighter-rouge">push()</code> 方法向栈顶增加对象：</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code><span class="n">User</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">();</span>
 <span class="n">user</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"User.name"</span><span class="o">);</span>
@@ -150,7 +150,7 @@ ${ session.name }
 </code></pre>
 </div>
 
-<p>通过 <code class="highlighter-rouge">ValueStack</code> 的 <code class="highlighter-rouge">set()</code> 方法：</p>
+<p>通过 <code class="highlighter-rouge">ValueStack</code> 的 <code class="highlighter-rouge">set()</code> 方法设置栈顶属性值（栈顶的对象必须为 Map 的实例，如果不是就创建 HashMap，然后将 key = value 放进该 HashMap，再将该 HashMap 放入栈顶）：</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code><span class="n">ValueStack</span> <span class="n">valueStack</span> <span class="o">=</span> <span class="n">ActionContext</span><span class="o">.</span><span class="na">getContext</span><span class="o">().</span><span class="na">getValueStack</span><span class="o">();</span>
 <span class="n">valueStack</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="s">"Map.name"</span><span class="o">);</span>
@@ -169,7 +169,10 @@ ${ request.name }
 
 <p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;s:property</span> <span class="na">value=</span><span class="s">"#request.name"</span><span class="nt">/&gt;</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;s:property</span> <span class="na">value=</span><span class="s">"name"</span><span class="nt">/&gt;</span>
+<span class="c">&lt;!-- 参见：https://struts.apache.org/docs/ognl-basics.html  --&gt;</span>
+<span class="nt">&lt;s:property</span> <span class="na">value=</span><span class="s">"[0].name"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;s:property</span> <span class="na">value=</span><span class="s">"#request.name"</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;s:property</span> <span class="na">value=</span><span class="s">"#attr.name"</span><span class="nt">/&gt;</span>
 </code></pre>
 </div>
