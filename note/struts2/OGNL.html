@@ -81,16 +81,18 @@ context map---|
 
 <p>通过 EL 表达式：</p>
 
-<pre><code class="language-jsp">${ name }
+<div class="highlighter-rouge"><pre class="highlight"><code>${ name }
 ${ applicationScope.name }
 ${ application.name }
 </code></pre>
+</div>
 
 <p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
 
-<pre><code class="language-jsp">&lt;s:property value="#application.name" /&gt;
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;s:property value="#application.name" /&gt;
 &lt;s:property value="#attr.name" /&gt;
 </code></pre>
+</div>
 
 <h1 id="session">session</h1>
 
@@ -115,16 +117,18 @@ ${ application.name }
 
 <p>通过 EL 表达式：</p>
 
-<pre><code class="language-jsp">${ name }
+<div class="highlighter-rouge"><pre class="highlight"><code>${ name }
 ${ sessionScope.name }
 ${ session.name }
 </code></pre>
+</div>
 
 <p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
 
-<pre><code class="language-jsp">&lt;s:property value="#session.name" /&gt;
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;s:property value="#session.name" /&gt;
 &lt;s:property value="#attr.name" /&gt;
 </code></pre>
+</div>
 
 <h1 id="value-stackroot">value stack(root)</h1>
 
@@ -151,16 +155,18 @@ ${ session.name }
 
 <p>通过 EL 表达式：</p>
 
-<pre><code class="language-jsp">${ name }
+<div class="highlighter-rouge"><pre class="highlight"><code>${ name }
 ${ requestScope.name }
 ${ request.name }
 </code></pre>
+</div>
 
 <p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
 
-<pre><code class="language-jsp">&lt;s:property value="#request.name"/&gt;
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;s:property value="#request.name"/&gt;
 &lt;s:property value="#attr.name"/&gt;
 </code></pre>
+</div>
 
 <h1 id="action-the-current-action">action (the current action)</h1>
 
@@ -180,17 +186,19 @@ ${ request.name }
 
 <p>通过 EL 表达式：</p>
 
-<pre><code class="language-jsp">${ name }
+<div class="highlighter-rouge"><pre class="highlight"><code>${ name }
 ${ sessionScope.name }
 ${ session.name }
 </code></pre>
+</div>
 
 <p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
 
-<pre><code class="language-jsp">&lt;s:property value="name"/&gt;
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;s:property value="name"/&gt;
 &lt;s:property value="#action.name" /&gt;
 &lt;s:property value="#attr.name" /&gt;
 </code></pre>
+</div>
 
 <h1 id="request">request</h1>
 
@@ -207,16 +215,18 @@ ${ session.name }
 
 <p>通过 EL 表达式：</p>
 
-<pre><code class="language-jsp">${ name }
+<div class="highlighter-rouge"><pre class="highlight"><code>${ name }
 ${ requestScope.name }
 ${ request.name }
 </code></pre>
+</div>
 
 <p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
 
-<pre><code class="language-jsp">&lt;s:property value="#request.name" /&gt;
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;s:property value="#request.name" /&gt;
 &lt;s:property value="#attr.name" /&gt;
 </code></pre>
+</div>
 
 <h1 id="parameters">parameters</h1>
 
@@ -230,14 +240,16 @@ ${ request.name }
 
 <p>通过 EL 表达式：</p>
 
-<pre><code class="language-jsp">${ param.name }
+<div class="highlighter-rouge"><pre class="highlight"><code>${ param.name }
 ${ paramValues.name[0] }
 </code></pre>
+</div>
 
 <p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
 
-<pre><code class="language-jsp">&lt;s:property value="#parameters.name" /&gt;
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;s:property value="#parameters.name" /&gt;
 </code></pre>
+</div>
 
 <h1 id="attr-searches-page-request-session-then-application-scopes">attr (searches page, request, session, then application scopes)</h1>
 
@@ -249,13 +261,15 @@ ${ paramValues.name[0] }
 
 <p>通过 EL 表达式：</p>
 
-<pre><code class="language-jsp">${ name }
+<div class="highlighter-rouge"><pre class="highlight"><code>${ name }
 </code></pre>
+</div>
 
 <p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
 
-<pre><code class="language-jsp">&lt;s:property value="#attr.name" /&gt;
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;s:property value="#attr.name" /&gt;
 </code></pre>
+</div>
 </div>
   </div>
 
