@@ -193,8 +193,9 @@ ${ request.name }
 <p>通过 EL 表达式：</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>${ name }
-${ sessionScope.name }
-${ session.name }
+${ action.name }
+${ requestScope.name }
+${ request.name }
 </code></pre>
 </div>
 
@@ -202,6 +203,7 @@ ${ session.name }
 
 <div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;s:property</span> <span class="na">value=</span><span class="s">"name"</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;s:property</span> <span class="na">value=</span><span class="s">"#action.name"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;s:property</span> <span class="na">value=</span><span class="s">"#request.name"</span> <span class="nt">/&gt;</span>
 <span class="nt">&lt;s:property</span> <span class="na">value=</span><span class="s">"#attr.name"</span> <span class="nt">/&gt;</span>
 </code></pre>
 </div>
