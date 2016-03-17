@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Markdown Syntax</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+  <body>
+    <article class="page">
+  <header class="page-header">
+    <div class="container">
+      <h1 class="page-title">Markdown Syntax</h1>
+      <p class="page-tags">
+        
+        <span class="tag">Markdown Syntax</span>
+        
+      </p>
+      <p class="page-meta">
+        <time datetime="1970-01-01T00:00:00+08:00">Jan 1, 1970</time>
+      </p>
+    </div>
+  </header>
+
+  
+  <div class="container">
+    <h1>Table Of Contents</h1>
+    <div id="toc"></div>
+  </div>
+  
+
+  <div class="page-content">
+    <div class="container"><h1 id="section">相关工具</h1>
+
+<ul>
+  <li><a href="http://domchristie.github.io/to-markdown/">to-markdown</a></li>
+  <li><a href="http://heckyesmarkdown.com/">URL-to-Markdown</a></li>
+</ul>
+
+<h1 id="section-1">概述</h1>
+
+<p>Markdown 的目标是实现「易读易写」。</p>
+
+<h2 id="section-2">特殊字符自动转换</h2>
+
+<p>在 HTML 文件中, 有两个字符需要特殊处理： <code class="highlighter-rouge">&lt;</code> 和 <code class="highlighter-rouge">&amp;</code> 。 <code class="highlighter-rouge">&lt;</code> 符号用于起始标签, <code class="highlighter-rouge">&amp;</code> 符号则用于标记 HTML 实体, 如果你只是想要显示这些字符的原型, 你必须要使用实体的形式, 像是 <code class="highlighter-rouge">&amp;lt;</code> 和 <code class="highlighter-rouge">&amp;amp;</code>。</p>
+
+<p>Markdown 让你可以自然地书写字符, 需要转换的由它来处理好了。如果你使用的 <code class="highlighter-rouge">&amp;</code> 字符是 HTML 字符实体的一部分, 它会保留原状, 否则它会被转换成 <code class="highlighter-rouge">&amp;amp;</code>。</p>
+
+<p>所以你如果要在文档中插入一个版权符号 <code class="highlighter-rouge">©</code>, 你可以这样写：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&amp;copy;
+</code></pre>
+</div>
+
+<p>Markdown 会保留它不动。而若你写：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>AT&amp;T
+</code></pre>
+</div>
+
+<p>Markdown 就会将它转为：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>AT&amp;amp;T
+</code></pre>
+</div>
+
+<p>类似的状况也会发生在 <code class="highlighter-rouge">&lt;</code> 符号上, 因为 Markdown 允许 兼容 HTML , 如果你是把 <code class="highlighter-rouge">&lt;</code> 符号作为 HTML 标签的定界符使用, 那 Markdown 也不会对它做任何转换, 但是如果你写：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>4 &lt; 5
+</code></pre>
+</div>
+
+<p>Markdown 将会把它转换为：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>4 &amp;lt; 5
+</code></pre>
+</div>
+
+<p>不过需要注意的是, code 范围内, 不论是行内还是区块,  <code class="highlighter-rouge">&lt;</code> 和 <code class="highlighter-rouge">&amp;</code> 两个符号都一定会被转换成 HTML 实体。</p>
+
+<h1 id="section-3">区段元素</h1>
+
+<h2 id="section-4">链接</h2>
+
+<p>Markdown 支持两种形式的链接语法: 行内式和参考式两种形式。</p>
+
+<p>链接文字都是用 <code class="highlighter-rouge">[]</code> 来标记。</p>
+
+<h3 id="section-5">行内式链接</h3>
+
+<p>在 <code class="highlighter-rouge">[]</code> 后面紧接着 <code class="highlighter-rouge">()</code> 并插入网址链接即可, 如果你还想要加上链接的 title 文字, 只要在网址后面, 用双引号把 title 文字包起来即可, 例如:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>This is [an example](http://example.com/ "Title") inline link.
+
+[This link](http://example.net/) has no title attribute.
+</code></pre>
+</div>
+
+<p>如果你是要链接到同样主机的资源, 你可以使用相对路径:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>See my [About](/about/) page for details.
+</code></pre>
+</div>
+
+<h3 id="section-6">参考式</h3>
+
+<p>在链接文字的 <code class="highlighter-rouge">[]</code> 后面再接上另一个 <code class="highlighter-rouge">[]</code> , 而在第二个 <code class="highlighter-rouge">[]</code> 里面要填入用以辨识链接的标记:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>This is [an example][id] reference-style link.
+</code></pre>
+</div>
+
+<p>接着, 在文件的任意处, 你可以把这个标记的链接内容定义出来:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[id]: http://example.com/  "Optional Title Here"
+</code></pre>
+</div>
+
+<h4 id="section-7">隐式链接标记</h4>
+
+<p>可以省略指定链接标记, 这种情形下, 链接标记会视为等同于链接文字:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[Google][]
+
+[Google]: http://google.com/
+</code></pre>
+</div>
+
+<p>下面是一个参考式链接的范例:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>I get 10 times more traffic from [Google] [1] than from
+[Yahoo] [2] or [MSN] [3].
+
+  [1]: http://google.com/        "Google"
+  [2]: http://search.yahoo.com/  "Yahoo Search"
+  [3]: http://search.msn.com/    "MSN Search"
+</code></pre>
+</div>
+
+<h2 id="section-8">强调</h2>
+
+<p>使用 <code class="highlighter-rouge">*</code> 和 <code class="highlighter-rouge">_</code> 作为标记强调字词的符号, 被这些符号包围的字词会被转成用 <code class="highlighter-rouge">&lt;em&gt;</code> 标签包围, 用两个 <code class="highlighter-rouge">*</code> 或 <code class="highlighter-rouge">_</code> 包起来的话, 则会被转成 <code class="highlighter-rouge">&lt;strong&gt;</code>, 例如:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>*single asterisks*
+_single underscores_
+**double asterisks**
+__double underscores__
+</code></pre>
+</div>
+
+<h2 id="section-9">代码</h2>
+
+<p>如果要标记一小段行内代码:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Use the `printf()` function.
+</code></pre>
+</div>
+
+<h2 id="section-10">图片</h2>
+
+<p>Markdown 使用一种和链接很相似的语法来标记图片, 同样也允许两种样式: 行内式和参考式。</p>
+
+<h3 id="section-11">行内式</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>![Alt text](/path/to/img.jpg)
+
+![Alt text](/path/to/img.jpg "Optional title")
+</code></pre>
+</div>
+
+<h3 id="section-12">参考式</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>![Alt text][id]
+
+[id]: url/to/image  "Optional title attribute"
+</code></pre>
+</div>
+
+<h1 id="section-13">区块元素</h1>
+
+<h2 id="section-14">段落和换行</h2>
+
+<p>一个 Markdown 段落由一个或多个连续的文本行组成, 它的前后要有一个以上的空行。</p>
+
+<p>普通段落不该用空格或制表符来缩进。</p>
+
+<p>如果想要依赖 Markdown 来插入 <code class="highlighter-rouge">&lt;br /&gt;</code> 标签的话, 在插入处先按入两个以上的空格然后回车。</p>
+
+<h2 id="section-15">标题</h2>
+
+<p>Markdown 支持两种标题的语法类 Setext 和类 atx 形式。</p>
+
+<p>类 Setext 形式是用底线的形式, 利用 <code class="highlighter-rouge">=</code> (最高阶标题) 和 <code class="highlighter-rouge">-</code> (第二阶标题):</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>This is an H1
+=============
+
+This is an H2
+-------------
+</code></pre>
+</div>
+
+<p>任何数量的 <code class="highlighter-rouge">=</code> 和 <code class="highlighter-rouge">-</code> 都可以有效果。</p>
+
+<p>类 Atx 形式则是在行首插入 1 到 6 个 <code class="highlighter-rouge">#</code>, 对应到标题 1 到 6 阶:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code># 这是 H1
+
+## 这是 H2
+
+###### 这是 H6
+</code></pre>
+</div>
+
+<h2 id="blockquotes">区块引用 Blockquotes</h2>
+
+<p>Markdown 标记区块引用是使用类似 email 中用 <code class="highlighter-rouge">&gt;</code> 的引用方式。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&gt; This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
+&gt; consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
+&gt; Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae, risus.
+&gt;
+&gt; Donec sit amet nisl. Aliquam semper ipsum sit amet velit. Suspendisse
+&gt; id sem consectetuer libero luctus adipiscing.
+</code></pre>
+</div>
+
+<p>Markdown 也允许你偷懒只在整个段落的第一行最前面加上 <code class="highlighter-rouge">&gt;</code> :</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&gt; This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
+consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
+Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae, risus.
+
+&gt; Donec sit amet nisl. Aliquam semper ipsum sit amet velit. Suspendisse
+id sem consectetuer libero luctus adipiscing.
+</code></pre>
+</div>
+
+<p>区块引用可以嵌套:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&gt; This is the first level of quoting.
+&gt;
+&gt; &gt; This is nested blockquote.
+&gt;
+&gt; Back to the first level.
+</code></pre>
+</div>
+
+<p>引用的区块内也可以使用其他的 Markdown 语法，包括标题、列表、代码区块等:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&gt; ## 这是一个标题。
+&gt;
+&gt; 1.   这是第一行列表项。
+&gt; 2.   这是第二行列表项。
+&gt;
+&gt; 给出一些例子代码：
+&gt;
+&gt;     return shell_exec("echo $input | $markdown_script");
+</code></pre>
+</div>
+
+<h2 id="section-16">列表</h2>
+
+<p>Markdown 支持有序列表和无序列表。</p>
+
+<p>无序列表使用 <code class="highlighter-rouge">*</code> 、<code class="highlighter-rouge">+</code> 或是 <code class="highlighter-rouge">-</code> 作为列表标记:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>* Red
+* Green
+* Blue
+</code></pre>
+</div>
+
+<p>有序列表则使用数字接着一个英文句点:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>1. Red
+2. Green
+3. Blue
+</code></pre>
+</div>
+
+<p>如果要在列表项目内放进引用, 那 <code class="highlighter-rouge">&gt;</code> 就需要缩进:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>*   A list item with a blockquote:
+    &gt; This is a blockquote
+    &gt; inside a list item.
+</code></pre>
+</div>
+
+<p>如果要放代码区块的话，该区块就需要缩进两次:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>*   一列表项包含一个列表区块：
+        &lt;代码写在这&gt;
+</code></pre>
+</div>
+
+<h2 id="section-17">代码区块</h2>
+
+<p>在代码区块里面, <code class="highlighter-rouge">&amp;</code> 、<code class="highlighter-rouge">&lt;</code> 和 <code class="highlighter-rouge">&gt;</code> 会自动转成 HTML 实体。</p>
+
+<p>只要简单地缩进 4 个空格或是 1 个制表符:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>这是一个普通段落：
+
+    这是一个代码区块。
+</code></pre>
+</div>
+
+<h2 id="section-18">分隔线</h2>
+
+<p>用三个以上的 <code class="highlighter-rouge">*</code> 、<code class="highlighter-rouge">-</code> 、<code class="highlighter-rouge">_</code> 来建立一个分隔线。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>- * *
+***
+*****
++ - -
+---------------------------------------
+</code></pre>
+</div>
+
+<h1 id="section-19">其它</h1>
+
+<h2 id="section-20">自动链接</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;http://example.com/&gt;
+</code></pre>
+</div>
+
+<p>邮址的自动链接也很类似:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;address@example.com&gt;
+</code></pre>
+</div>
+
+<h2 id="section-21">反斜杠</h2>
+
+<p>Markdown 可以利用反斜杠来插入一些在语法中有其它意义的符号。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>\*literal asterisks\*
+</code></pre>
+</div>
+
+<p>Markdown 支持以下这些符号前面加上反斜杠来帮助插入普通的符号:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>符号</th>
+      <th>名称</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>\</td>
+      <td>反斜线</td>
+    </tr>
+    <tr>
+      <td>`</td>
+      <td>反引号</td>
+    </tr>
+    <tr>
+      <td>*</td>
+      <td>星号</td>
+    </tr>
+    <tr>
+      <td>_</td>
+      <td>底线</td>
+    </tr>
+    <tr>
+      <td>{}</td>
+      <td>花括号</td>
+    </tr>
+    <tr>
+      <td>[]</td>
+      <td>方括号</td>
+    </tr>
+    <tr>
+      <td>()</td>
+      <td>括弧</td>
+    </tr>
+    <tr>
+      <td>#</td>
+      <td>井字号</td>
+    </tr>
+    <tr>
+      <td>+</td>
+      <td>加号</td>
+    </tr>
+    <tr>
+      <td>-</td>
+      <td>减号</td>
+    </tr>
+    <tr>
+      <td>.</td>
+      <td>英文句点</td>
+    </tr>
+    <tr>
+      <td>!</td>
+      <td>惊叹号</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+  </div>
+
+  <footer></footer>
+
+</article>
+<script src="/assets/js/anchor.min.js"></script>
+<script src="/assets/js/jquery.min.js"></script>
+<!--
+<script src="/assets/js/clipboard.min.js"></script>
+-->
+
+<script>
+  anchors.options = {
+    placement: 'left'
+  };
+  anchors.add('.page-content h1, .page-content h2, .page-content h3, .page-content h4, .page-content h5, .page-content h6');
+
+  /*
+  $('pre.highlight').after($('<button class="btn-copy">Copy</button>'));
+  var clipboard = new Clipboard('.btn-copy', {
+    text: function(trigger) {
+      return $(trigger).prev().text();
+    }
+  });
+  */
+
+  (function() {
+    var $toc = $('#toc'),
+      $nav = $('<ul>'),
+      track = [];
+
+    function getParentNav(level) {
+      var i = track.length,
+        $el = $('<li>');
+      if (!track.length) {
+        return $el.appendTo($nav);
+      }
+      while (i--) {
+        var last = track[i];
+        if (level === last.level) {
+          return $el.appendTo(last.$el.closest('ul'));
+        }
+        if (level - last.level == 1) {
+          return $el.appendTo($('<ul>').appendTo(last.$el));
+        }
+      }
+    }
+
+    function generateTableOfContents(els) {
+      var test, href;
+      for (var i = 0; i < els.length; i++) {
+        test = els[i].textContent;
+        href = els[i].querySelector('.anchorjs-link').getAttribute('href');
+        addNavItem(href, test, els[i].tagName.slice(1));
+      }
+    }
+
+    function addNavItem(href, text, level) {
+      var $a = $('<a href="' + href + '">' + text + '</a>'),
+        $el = getParentNav(level);
+      if (!$el) {
+        return;
+      }
+      $el.append($a);
+      track.push({
+        level: level,
+        $el: $el
+      });
+    }
+
+    generateTableOfContents(anchors.elements);
+    $nav.appendTo($toc);
+  })();
+
+  $(document.body).on('keydown', function(e) {
+    if (e.altKey && e.keyCode == 36) {
+      location.href = '/';
+      e.preventDefault();
+    }
+  });
+</script>
+
+
+  </body>
+</html>

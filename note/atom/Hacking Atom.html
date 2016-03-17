@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Hacking Atom</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+  <body>
+    <article class="page">
+  <header class="page-header">
+    <div class="container">
+      <h1 class="page-title">Hacking Atom</h1>
+      <p class="page-tags">
+        
+        <span class="tag">Editor</span>
+        
+        <span class="tag">Atom</span>
+        
+        <span class="tag">Hacking</span>
+        
+      </p>
+      <p class="page-meta">
+        <time datetime="1970-01-01T00:00:00+08:00">Jan 1, 1970</time>
+      </p>
+    </div>
+  </header>
+
+  
+  <div class="container">
+    <h1>Table Of Contents</h1>
+    <div id="toc"></div>
+  </div>
+  
+
+  <div class="page-content">
+    <div class="container"><h1 id="basic-package-layout">Basic Package Layout</h1>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>my-package/
+  grammars/
+  keymaps/
+  lib/
+  menus/
+  spec/
+  snippets/
+  styles/
+  index.coffee
+  package.json
+</code></pre>
+</div>
+
+<h2 id="packagejson">package.json</h2>
+
+<p>This file contains metadata about the package, such as the path to its “main” module, library dependencies, and manifests specifying the order in which its resources should be loaded.</p>
+
+<p>Atom <code class="highlighter-rouge">package.json</code> files have their own additions:</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">main</code>: the path to the CoffeeScript file that’s the entry point to your package. If this is missing, Atom will default to looking for an <code class="highlighter-rouge">index.coffee</code> or <code class="highlighter-rouge">index.js</code>.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">styles</code>: an Array of Strings identifying the order of the style sheets your package needs to load. If not specified, style sheets in the styles directory are added alphabetically.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">keymaps</code>: an Array of Strings identifying the order of the key mappings your package needs to load. If not specified, mappings in the keymaps directory are added alphabetically.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">menus</code>: an Array of Strings identifying the order of the menu mappings your package needs to load. If not specified, mappings in the menus directory are added alphabetically.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">snippets</code>: an Array of Strings identifying the order of the snippets your package needs to load. If not specified, snippets in the snippets directory are added alphabetically.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">activationCommands</code>: an Object identifying commands that trigger your package’s activation. The keys are CSS selectors, the values are Arrays of Strings identifying the command. The loading of your package is delayed until one of these events is triggered within the associated scope defined by the CSS selector.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">activationHooks</code>: an Array of Strings identifying hooks that trigger your package’s activation. The loading of your package is delayed until one of these hooks are triggered. Known hooks are:</p>
+
+    <p>language-package-name:grammar-used (e.g) language-javascript:grammar-used</p>
+  </li>
+</ul>
+
+<h1 id="source-code">Source Code</h1>
+
+<p>Your package’s top-level module should implement the following methods:</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">activate(state)</code>: This required method is called when your package is activated. It is passed the state data from the last time the window was serialized if your module implements the <code class="highlighter-rouge">serialize()</code> method. Use this to do initialization work when your package is started (like setting up DOM elements or binding events).</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">serialize()</code>: This optional method is called when the window is shutting down, allowing you to return JSON to represent the state of your component. When the window is later restored, the data you returned is passed to your module’s activate method so you can restore your view to where the user left off.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">deactivate()</code>: This optional method is called when the window is shutting down. If your package is watching any files or holding external resources in any other way, release them here. If you’re just subscribing to things on window, you don’t need to worry because that’s getting torn down anyway.</p>
+  </li>
+</ul>
+
+<h1 id="style-sheets">Style Sheets</h1>
+
+<p><a href="https://atom.io/docs/v1.5.4/hacking-atom-package-word-count#style-sheets">https://atom.io/docs/v1.5.4/hacking-atom-package-word-count#style-sheets</a></p>
+
+<p>Style sheets for your package should be placed in the <code class="highlighter-rouge">styles</code> directory.</p>
+
+<p>Style sheets can be written as CSS or Less, but Less is recommended.</p>
+
+<h1 id="keymaps">Keymaps</h1>
+
+<p><a href="https://atom.io/docs/v1.5.4/hacking-atom-package-word-count#keymaps">https://atom.io/docs/v1.5.4/hacking-atom-package-word-count#keymaps</a></p>
+
+<h1 id="menus">Menus</h1>
+
+<h2 id="application-menu">Application Menu</h2>
+
+<p><a href="https://atom.io/docs/v1.5.4/hacking-atom-package-word-count#application-menu">https://atom.io/docs/v1.5.4/hacking-atom-package-word-count#application-menu</a></p>
+
+<h2 id="context-menu">Context Menu</h2>
+
+<p><a href="https://atom.io/docs/v1.5.4/hacking-atom-package-word-count#context-menu">https://atom.io/docs/v1.5.4/hacking-atom-package-word-count#context-menu</a></p>
+</div>
+  </div>
+
+  <footer></footer>
+
+</article>
+<script src="/assets/js/anchor.min.js"></script>
+<script src="/assets/js/jquery.min.js"></script>
+<!--
+<script src="/assets/js/clipboard.min.js"></script>
+-->
+
+<script>
+  anchors.options = {
+    placement: 'left'
+  };
+  anchors.add('.page-content h1, .page-content h2, .page-content h3, .page-content h4, .page-content h5, .page-content h6');
+
+  /*
+  $('pre.highlight').after($('<button class="btn-copy">Copy</button>'));
+  var clipboard = new Clipboard('.btn-copy', {
+    text: function(trigger) {
+      return $(trigger).prev().text();
+    }
+  });
+  */
+
+  (function() {
+    var $toc = $('#toc'),
+      $nav = $('<ul>'),
+      track = [];
+
+    function getParentNav(level) {
+      var i = track.length,
+        $el = $('<li>');
+      if (!track.length) {
+        return $el.appendTo($nav);
+      }
+      while (i--) {
+        var last = track[i];
+        if (level === last.level) {
+          return $el.appendTo(last.$el.closest('ul'));
+        }
+        if (level - last.level == 1) {
+          return $el.appendTo($('<ul>').appendTo(last.$el));
+        }
+      }
+    }
+
+    function generateTableOfContents(els) {
+      var test, href;
+      for (var i = 0; i < els.length; i++) {
+        test = els[i].textContent;
+        href = els[i].querySelector('.anchorjs-link').getAttribute('href');
+        addNavItem(href, test, els[i].tagName.slice(1));
+      }
+    }
+
+    function addNavItem(href, text, level) {
+      var $a = $('<a href="' + href + '">' + text + '</a>'),
+        $el = getParentNav(level);
+      if (!$el) {
+        return;
+      }
+      $el.append($a);
+      track.push({
+        level: level,
+        $el: $el
+      });
+    }
+
+    generateTableOfContents(anchors.elements);
+    $nav.appendTo($toc);
+  })();
+
+  $(document.body).on('keydown', function(e) {
+    if (e.altKey && e.keyCode == 36) {
+      location.href = '/';
+      e.preventDefault();
+    }
+  });
+</script>
+
+
+  </body>
+</html>

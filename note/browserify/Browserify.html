@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Browserify</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+  <body>
+    <article class="page">
+  <header class="page-header">
+    <div class="container">
+      <h1 class="page-title">Browserify</h1>
+      <p class="page-tags">
+        
+        <span class="tag">Front End</span>
+        
+        <span class="tag">Build Tool</span>
+        
+        <span class="tag">Browserify</span>
+        
+      </p>
+      <p class="page-meta">
+        <time datetime="1970-01-01T00:00:00+08:00">Jan 1, 1970</time>
+      </p>
+    </div>
+  </header>
+
+  
+  <div class="container">
+    <h1>Table Of Contents</h1>
+    <div id="toc"></div>
+  </div>
+  
+
+  <div class="page-content">
+    <div class="container"><p>Offical Site: http://browserify.org</p>
+
+<h1 id="getting-started">getting started</h1>
+
+<p>If you’re new to browserify, check out the<br />
+<a href="Browserify Handbook.html">browserify handbook</a><br />
+and the resources on <a href="http://browserify.org/">browserify.org</a>.</p>
+
+<p>Check out <a href="http://browserifysearch.org/">browserify search</a> to find<br />
+browserify-compatible packages on npm.</p>
+
+<h1 id="example">example</h1>
+
+<p>Whip up a file, <code class="highlighter-rouge">main.js</code> with some <code class="highlighter-rouge">require()</code>s in it. You can use relative<br />
+paths like <code class="highlighter-rouge">'./foo.js'</code> and <code class="highlighter-rouge">'../lib/bar.js'</code> or module paths like <code class="highlighter-rouge">'gamma'</code><br />
+that will search <code class="highlighter-rouge">node_modules/</code> using<br />
+<a href="https://github.com/substack/node-resolve">node’s module lookup algorithm</a>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">foo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./foo.js'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">bar</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'../lib/bar.js'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">gamma</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'gamma'</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">elem</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">'result'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="nx">foo</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="o">+</span> <span class="nx">bar</span><span class="p">(</span><span class="s1">'baz'</span><span class="p">);</span>
+<span class="nx">elem</span><span class="p">.</span><span class="nx">textContent</span> <span class="o">=</span> <span class="nx">gamma</span><span class="p">(</span><span class="nx">x</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>Export functionality by assigning onto <code class="highlighter-rouge">module.exports</code> or <code class="highlighter-rouge">exports</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">n</span> <span class="o">*</span> <span class="mi">111</span> <span class="p">}</span>
+</code></pre>
+</div>
+
+<p>Now just use the <code class="highlighter-rouge">browserify</code> command to build a bundle starting at <code class="highlighter-rouge">main.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>browserify main.js &gt; bundle.js
+</code></pre>
+</div>
+
+<p>All of the modules that <code class="highlighter-rouge">main.js</code> needs are included in the <code class="highlighter-rouge">bundle.js</code> from a<br />
+recursive walk of the <code class="highlighter-rouge">require()</code> graph using<br />
+<a href="https://github.com/defunctzombie/node-required">required</a>.</p>
+
+<p>To use this bundle, just toss a <code class="highlighter-rouge">&lt;script src="bundle.js"&gt;&lt;/script&gt;</code> into your<br />
+html!</p>
+
+<h1 id="install">install</h1>
+
+<p>With <a href="https://www.npmjs.com/">npm</a> do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>npm install -g browserify
+</code></pre>
+</div>
+
+<h1 id="usage">usage</h1>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Usage: browserify [entry files] {OPTIONS}
+
+Standard Options:
+
+    --outfile, -o  Write the browserify bundle to this file.
+                   If unspecified, browserify prints to stdout.
+
+    --require, -r  A module name or file to bundle.require()
+                   Optionally use a colon separator to set the target.
+
+      --entry, -e  An entry point of your app
+
+     --ignore, -i  Replace a file with an empty stub. Files can be globs.
+
+    --exclude, -u  Omit a file from the output bundle. Files can be globs.
+
+   --external, -x  Reference a file from another bundle. Files can be globs.
+
+  --transform, -t  Use a transform module on top-level files.
+
+    --command, -c  Use a transform command on top-level files.
+
+  --standalone -s  Generate a UMD bundle for the supplied export name.
+                   This bundle works with other module systems and sets the name
+                   given as a window global if no module system is found.
+
+       --debug -d  Enable source maps that allow you to debug your files
+                   separately.
+
+       --help, -h  Show this message
+
+For advanced options, type `browserify --help advanced`.
+
+Specify a parameter.
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Advanced Options:
+
+  --insert-globals, --ig, --fast    [default: false]
+
+    Skip detection and always insert definitions for process, global,
+    __filename, and __dirname.
+
+    benefit: faster builds
+    cost: extra bytes
+
+  --insert-global-vars, --igv
+
+    Comma-separated list of global variables to detect and define.
+    Default: __filename,__dirname,process,Buffer,global
+
+  --detect-globals, --dg            [default: true]
+
+    Detect the presence of process, global, __filename, and __dirname and define
+    these values when present.
+
+    benefit: npm modules more likely to work
+    cost: slower builds
+
+  --ignore-missing, --im            [default: false]
+
+    Ignore `require()` statements that don't resolve to anything.
+
+  --noparse=FILE
+
+    Don't parse FILE at all. This will make bundling much, much faster for giant
+    libs like jquery or threejs.
+
+  --no-builtins
+
+    Turn off builtins. This is handy when you want to run a bundle in node which
+    provides the core builtins.
+
+  --no-commondir
+
+    Turn off setting a commondir. This is useful if you want to preserve the
+    original paths that a bundle was generated with.
+
+  --no-bundle-external
+
+    Turn off bundling of all external modules. This is useful if you only want
+    to bundle your local files.
+
+  --bare
+
+    Alias for both --no-builtins, --no-commondir, and sets --insert-global-vars
+    to just "__filename,__dirname". This is handy if you want to run bundles in
+    node.
+
+  --no-browser-field, --no-bf
+
+    Turn off package.json browser field resolution. This is also handy if you
+    need to run a bundle in node.
+
+  --node
+
+    Alias for --bare and --no-browser-field.
+
+  --full-paths
+
+    Turn off converting module ids into numerical indexes. This is useful for
+    preserving the original paths that a bundle was generated with.
+
+  --deps
+
+    Instead of standard bundle output, print the dependency array generated by
+    module-deps.
+
+  --list
+
+    Print each file in the dependency graph. Useful for makefiles.
+
+  --extension=EXTENSION
+
+    Consider files with specified EXTENSION as modules, this option can used
+    multiple times.
+
+  --global-transform=MODULE, -g MODULE
+
+    Use a transform module on all files after any ordinary transforms have run.
+
+  --ignore-transform=MODULE, -it MODULE
+
+    Do not run certain transformations, even if specified elsewhere.
+
+  --plugin=MODULE, -p MODULE
+
+    Register MODULE as a plugin.
+
+Passing arguments to transforms and plugins:
+
+  For -t, -g, and -p, you may use subarg syntax to pass options to the
+  transforms or plugin function as the second parameter. For example:
+
+    -t [ foo -x 3 --beep ]
+
+  will call the `foo` transform for each applicable file by calling:
+
+    foo(file, { x: 3, beep: true })
+
+</code></pre>
+</div>
+
+<h1 id="compatibility">compatibility</h1>
+
+<p>Many <a href="https://www.npmjs.com/">npm</a> modules that don’t do IO will just work after being<br />
+browserified. Others take more work.</p>
+
+<p>Many node built-in modules have been wrapped to work in the browser, but only<br />
+when you explicitly <code class="highlighter-rouge">require()</code> or use their functionality.</p>
+
+<p>When you <code class="highlighter-rouge">require()</code> any of these modules, you will get a browser-specific shim:</p>
+
+<ul>
+  <li><a href="https://www.npmjs.com/package/assert">assert</a></li>
+  <li><a href="https://www.npmjs.com/package/buffer">buffer</a></li>
+  <li><a href="https://www.npmjs.com/package/console-browserify">console</a></li>
+  <li><a href="https://www.npmjs.com/package/constants-browserify">constants</a></li>
+  <li><a href="https://www.npmjs.com/package/crypto-browserify">crypto</a></li>
+  <li><a href="https://www.npmjs.com/package/domain-browser">domain</a></li>
+  <li><a href="https://www.npmjs.com/package/events">events</a></li>
+  <li><a href="https://www.npmjs.com/package/stream-http">http</a></li>
+  <li><a href="https://www.npmjs.com/package/https-browserify">https</a></li>
+  <li><a href="https://www.npmjs.com/package/os-browserify">os</a></li>
+  <li><a href="https://www.npmjs.com/package/path-browserify">path</a></li>
+  <li><a href="https://www.npmjs.com/package/punycode">punycode</a></li>
+  <li><a href="https://www.npmjs.com/package/querystring-es3">querystring</a></li>
+  <li><a href="https://www.npmjs.com/package/stream-browserify">stream</a></li>
+  <li><a href="https://www.npmjs.com/package/string_decoder">string_decoder</a></li>
+  <li><a href="https://www.npmjs.com/package/timers-browserify">timers</a></li>
+  <li><a href="https://www.npmjs.com/package/tty-browserify">tty</a></li>
+  <li><a href="https://www.npmjs.com/package/url">url</a></li>
+  <li><a href="https://www.npmjs.com/package/util">util</a></li>
+  <li><a href="https://www.npmjs.com/package/vm-browserify">vm</a></li>
+  <li><a href="https://www.npmjs.com/package/browserify-zlib">zlib</a></li>
+</ul>
+
+<p>Additionally, if you use any of these variables, they<br />
+<a href="https://github.com/substack/insert-module-globals">will be defined</a><br />
+in the bundled output in a browser-appropriate way:</p>
+
+<ul>
+  <li><a href="https://www.npmjs.com/package/process">process</a></li>
+  <li><a href="https://www.npmjs.com/package/buffer">Buffer</a></li>
+  <li>global - top-level scope object (window)</li>
+  <li>__filename - file path of the currently executing file</li>
+  <li>__dirname - directory path of the currently executing file</li>
+</ul>
+
+<h1 id="more-examples">more examples</h1>
+
+<h2 id="external-requires">external requires</h2>
+
+<p>You can just as easily create a bundle that will export a <code class="highlighter-rouge">require()</code> function so<br />
+you can <code class="highlighter-rouge">require()</code> modules from another script tag. Here we’ll create a<br />
+<code class="highlighter-rouge">bundle.js</code> with the <a href="https://www.npmjs.com/package/through">through</a><br />
+and <a href="https://www.npmjs.com/package/duplexer">duplexer</a> modules.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify -r through -r duplexer -r ./my-file.js:my-module &gt; bundle.js
+</code></pre>
+</div>
+
+<p>Then in your page you can do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"bundle.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script&gt;</span>
+  <span class="kd">var</span> <span class="nx">through</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'through'</span><span class="p">);</span>
+  <span class="kd">var</span> <span class="nx">duplexer</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'duplexer'</span><span class="p">);</span>
+  <span class="kd">var</span> <span class="nx">myModule</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'my-module'</span><span class="p">);</span>
+  <span class="cm">/* ... */</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre>
+</div>
+
+<h2 id="external-source-maps">external source maps</h2>
+
+<p>If you prefer the source maps be saved to a separate <code class="highlighter-rouge">.js.map</code> source map file, you may use<br />
+<a href="https://github.com/thlorenz/exorcist">exorcist</a> in order to achieve that. It’s as simple as:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify main.js --debug | exorcist bundle.js.map &gt; bundle.js
+</code></pre>
+</div>
+
+<p>Learn about additional options <a href="https://github.com/thlorenz/exorcist#usage">here</a>.</p>
+
+<h2 id="multiple-bundles">multiple bundles</h2>
+
+<p>If browserify finds a <code class="highlighter-rouge">require</code>d function already defined in the page scope, it<br />
+will fall back to that function if it didn’t find any matches in its own set of<br />
+bundled modules.</p>
+
+<p>In this way, you can use browserify to split up bundles among multiple pages to<br />
+get the benefit of caching for shared, infrequently-changing modules, while<br />
+still being able to use <code class="highlighter-rouge">require()</code>. Just use a combination of <code class="highlighter-rouge">--external</code> and<br />
+<code class="highlighter-rouge">--require</code> to factor out common dependencies.</p>
+
+<p>For example, if a website with 2 pages, <code class="highlighter-rouge">beep.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">robot</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./robot.js'</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">robot</span><span class="p">(</span><span class="s1">'beep'</span><span class="p">));</span>
+</code></pre>
+</div>
+
+<p>and <code class="highlighter-rouge">boop.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">robot</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./robot.js'</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">robot</span><span class="p">(</span><span class="s1">'boop'</span><span class="p">));</span>
+</code></pre>
+</div>
+
+<p>both depend on <code class="highlighter-rouge">robot.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">s</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">s</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">()</span> <span class="o">+</span> <span class="s1">'!'</span> <span class="p">};</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify -r ./robot.js &gt; static/common.js
+$ browserify -x ./robot.js beep.js &gt; static/beep.js
+$ browserify -x ./robot.js boop.js &gt; static/boop.js
+</code></pre>
+</div>
+
+<p>Then on the beep page you can have:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"common.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"beep.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre>
+</div>
+
+<p>while the boop page can have:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"common.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"boop.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre>
+</div>
+
+<p>This approach using <code class="highlighter-rouge">-r</code> and <code class="highlighter-rouge">-x</code> works fine for a small number of split assets,<br />
+but there are plugins for automatically factoring out components which are<br />
+described in the<br />
+<a href="https://github.com/substack/browserify-handbook#partitioning">partitioning section of the browserify handbook</a>.</p>
+
+<h2 id="api-example">api example</h2>
+
+<p>You can use the API directly too:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">browserify</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'browserify'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">b</span> <span class="o">=</span> <span class="nx">browserify</span><span class="p">();</span>
+<span class="nx">b</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="s1">'./browser/main.js'</span><span class="p">);</span>
+<span class="nx">b</span><span class="p">.</span><span class="nx">bundle</span><span class="p">().</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<h1 id="methods">methods</h1>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">browserify</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'browserify'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<h2 id="browserifyfiles--opts"><code class="highlighter-rouge">browserify([files] [, opts])</code></h2>
+
+<p>Returns a new browserify instance.</p>
+
+<dl>
+<dt>
+files
+</dt>
+
+<dd>
+String, file object, or array of those types (they may be mixed) specifying entry file(s).
+</dd>
+
+<dt>
+opts
+</dt>
+
+<dd>
+Object.
+</dd>
+</dl>
+
+<p><code class="highlighter-rouge">files</code> and <code class="highlighter-rouge">opts</code> are both optional, but must be in the order shown if both are<br />
+passed.</p>
+
+<p>Entry files may be passed in <code class="highlighter-rouge">files</code> and / or <code class="highlighter-rouge">opts.entries</code>.</p>
+
+<p>External requires may be specified in <code class="highlighter-rouge">opts.require</code>, accepting the same formats<br />
+that the <code class="highlighter-rouge">files</code> argument does.</p>
+
+<p>If an entry file is a stream, its contents will be used. You should pass<br />
+<code class="highlighter-rouge">opts.basedir</code> when using streaming files so that relative requires can be<br />
+resolved.</p>
+
+<p><code class="highlighter-rouge">opts.entries</code> has the same definition as <code class="highlighter-rouge">files</code>.</p>
+
+<p><code class="highlighter-rouge">opts.noParse</code> is an array which will skip all require() and global parsing for<br />
+each file in the array. Use this for giant libs like jquery or threejs that<br />
+don’t have any requires or node-style globals but take forever to parse.</p>
+
+<p><code class="highlighter-rouge">opts.transform</code> is an array of transform functions or modules names which will<br />
+transform the source code before the parsing.</p>
+
+<p><code class="highlighter-rouge">opts.ignoreTransform</code> is an array of transformations that will not be run,<br />
+even if specified elsewhere.</p>
+
+<p><code class="highlighter-rouge">opts.plugin</code> is an array of plugin functions or module names to use. See the<br />
+plugins section below for details.</p>
+
+<p><code class="highlighter-rouge">opts.extensions</code> is an array of optional extra extensions for the module lookup<br />
+machinery to use when the extension has not been specified.<br />
+By default browserify considers only <code class="highlighter-rouge">.js</code> and <code class="highlighter-rouge">.json</code> files in such cases.</p>
+
+<p><code class="highlighter-rouge">opts.basedir</code> is the directory that browserify starts bundling from for<br />
+filenames that start with <code class="highlighter-rouge">.</code>.</p>
+
+<p><code class="highlighter-rouge">opts.paths</code> is an array of directories that browserify searches when looking<br />
+for modules which are not referenced using relative path. Can be absolute or<br />
+relative to <code class="highlighter-rouge">basedir</code>. Equivalent of setting <code class="highlighter-rouge">NODE_PATH</code> environmental variable<br />
+when calling <code class="highlighter-rouge">browserify</code> command.</p>
+
+<p><code class="highlighter-rouge">opts.commondir</code> sets the algorithm used to parse out the common paths. Use<br />
+<code class="highlighter-rouge">false</code> to turn this off, otherwise it uses the<br />
+<a href="https://www.npmjs.com/package/commondir">commondir</a> module.</p>
+
+<p><code class="highlighter-rouge">opts.fullPaths</code> disables converting module ids into numerical indexes. This is<br />
+useful for preserving the original paths that a bundle was generated with.</p>
+
+<p><code class="highlighter-rouge">opts.builtins</code> sets the list of built-ins to use, which by default is set in<br />
+<code class="highlighter-rouge">lib/builtins.js</code> in this distribution.</p>
+
+<p><code class="highlighter-rouge">opts.bundleExternal</code> boolean option to set if external modules should be<br />
+bundled. Defaults to true.</p>
+
+<p>When <code class="highlighter-rouge">opts.browserField</code> is false, the package.json browser field will be ignored.</p>
+
+<p>When <code class="highlighter-rouge">opts.insertGlobals</code> is true, always insert <code class="highlighter-rouge">process</code>, <code class="highlighter-rouge">global</code>,<br />
+<code class="highlighter-rouge">__filename</code>, and <code class="highlighter-rouge">__dirname</code> without analyzing the AST for faster builds but<br />
+larger output bundles. Default false.</p>
+
+<p>When <code class="highlighter-rouge">opts.detectGlobals</code> is true, scan all files for <code class="highlighter-rouge">process</code>, <code class="highlighter-rouge">global</code>,<br />
+<code class="highlighter-rouge">__filename</code>, and <code class="highlighter-rouge">__dirname</code>, defining as necessary. With this option npm<br />
+modules are more likely to work but bundling takes longer. Default true.</p>
+
+<p>When <code class="highlighter-rouge">opts.debug</code> is true, add a source map inline to the end of the bundle.<br />
+This makes debugging easier because you can see all the original files if<br />
+you are in a modern enough browser.</p>
+
+<p>When <code class="highlighter-rouge">opts.standalone</code> is a non-empty string, a standalone module is created<br />
+with that name and a <a href="https://github.com/forbeslindesay/umd">umd</a> wrapper.<br />
+You can use namespaces in the standalone global export using a <code class="highlighter-rouge">.</code> in the string<br />
+name as a separator, for example <code class="highlighter-rouge">'A.B.C'</code>. The global export will be <a href="https://github.com/ForbesLindesay/umd#name-casing-and-characters">sanitized<br />
+and camel cased</a>.</p>
+
+<p>Note that in standalone mode the <code class="highlighter-rouge">require()</code> calls from the original source will<br />
+still be around, which may trip up AMD loaders scanning for <code class="highlighter-rouge">require()</code> calls.<br />
+You can remove these calls with<br />
+<a href="https://www.npmjs.com/package/derequire">derequire</a>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ npm install -g derequire
+$ browserify main.js --standalone Foo | derequire &gt; bundle.js
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">opts.insertGlobalVars</code> will be passed to<br />
+<a href="https://www.npmjs.com/package/insert-module-globals">insert-module-globals</a><br />
+as the <code class="highlighter-rouge">opts.vars</code> parameter.</p>
+
+<p><code class="highlighter-rouge">opts.externalRequireName</code> defaults to <code class="highlighter-rouge">'require'</code> in <code class="highlighter-rouge">expose</code> mode but you can<br />
+use another name.</p>
+
+<p>Note that if files do not contain javascript source code then you also need to<br />
+specify a corresponding transform for them.</p>
+
+<p>All other options are forwarded along to<br />
+<a href="https://www.npmjs.com/package/module-deps">module-deps</a><br />
+and <a href="https://www.npmjs.com/package/browser-pack">browser-pack</a> directly.</p>
+
+<h2 id="baddfile-opts">b.add(file, opts)</h2>
+
+<p>Add an entry file from <code class="highlighter-rouge">file</code> that will be executed when the bundle loads.</p>
+
+<p>If <code class="highlighter-rouge">file</code> is an array, each item in <code class="highlighter-rouge">file</code> will be added as an entry file.</p>
+
+<h2 id="brequirefile-opts">b.require(file, opts)</h2>
+
+<p>Make <code class="highlighter-rouge">file</code> available from outside the bundle with <code class="highlighter-rouge">require(file)</code>.</p>
+
+<p>The <code class="highlighter-rouge">file</code> param is anything that can be resolved by <code class="highlighter-rouge">require.resolve()</code>.</p>
+
+<p><code class="highlighter-rouge">file</code> can also be a stream, but you should also use <code class="highlighter-rouge">opts.basedir</code> so that<br />
+relative requires will be resolvable.</p>
+
+<p>If <code class="highlighter-rouge">file</code> is an array, each item in <code class="highlighter-rouge">file</code> will be required.<br />
+In <code class="highlighter-rouge">file</code> array form, you can use a string or object for each item. Object items<br />
+should have a <code class="highlighter-rouge">file</code> property and the rest of the parameters will be used for<br />
+the <code class="highlighter-rouge">opts</code>.</p>
+
+<p>Use the <code class="highlighter-rouge">expose</code> property of opts to specify a custom dependency name.<br />
+<code class="highlighter-rouge">require('./vendor/angular/angular.js', {expose: 'angular'})</code> enables <code class="highlighter-rouge">require('angular')</code></p>
+
+<h2 id="bbundlecb">b.bundle(cb)</h2>
+
+<p>Bundle the files and their dependencies into a single javascript file.</p>
+
+<p>Return a readable stream with the javascript file contents or<br />
+optionally specify a <code class="highlighter-rouge">cb(err, buf)</code> to get the buffered results.</p>
+
+<h2 id="bexternalfile">b.external(file)</h2>
+
+<p>Prevent <code class="highlighter-rouge">file</code> from being loaded into the current bundle, instead referencing<br />
+from another bundle.</p>
+
+<p>If <code class="highlighter-rouge">file</code> is an array, each item in <code class="highlighter-rouge">file</code> will be externalized.</p>
+
+<p>If <code class="highlighter-rouge">file</code> is another bundle, that bundle’s contents will be read and excluded<br />
+from the current bundle as the bundle in <code class="highlighter-rouge">file</code> gets bundled.</p>
+
+<h2 id="bignorefile">b.ignore(file)</h2>
+
+<p>Prevent the module name or file at <code class="highlighter-rouge">file</code> from showing up in the output bundle.</p>
+
+<p>Instead you will get a file with <code class="highlighter-rouge">module.exports = {}</code>.</p>
+
+<h2 id="bexcludefile">b.exclude(file)</h2>
+
+<p>Prevent the module name or file at <code class="highlighter-rouge">file</code> from showing up in the output bundle.</p>
+
+<p>If your code tries to <code class="highlighter-rouge">require()</code> that file it will throw unless you’ve provided<br />
+another mechanism for loading it.</p>
+
+<h2 id="btransformtr-opts">b.transform(tr, opts={})</h2>
+
+<p>Transform source code before parsing it for <code class="highlighter-rouge">require()</code> calls with the transform<br />
+function or module name <code class="highlighter-rouge">tr</code>.</p>
+
+<p>If <code class="highlighter-rouge">tr</code> is a function, it will be called with <code class="highlighter-rouge">tr(file)</code> and it should return a<br />
+<a href="https://github.com/substack/stream-handbook#through">through-stream</a><br />
+that takes the raw file contents and produces the transformed source.</p>
+
+<p>If <code class="highlighter-rouge">tr</code> is a string, it should be a module name or file path of a<br />
+<a href="https://github.com/substack/module-deps#transforms">transform module</a><br />
+with a signature of:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">through</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'through'</span><span class="p">);</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">file</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">through</span><span class="p">()</span> <span class="p">};</span>
+</code></pre>
+</div>
+
+<p>You don’t need to necessarily use the<br />
+<a href="https://www.npmjs.com/package/through">through</a> module.<br />
+Browserify is compatible with the newer, more verbose<br />
+<a href="http://nodejs.org/api/stream.html#stream_class_stream_transform_1">Transform streams</a><br />
+built into Node v0.10.</p>
+
+<p>Here’s how you might compile coffee script on the fly using <code class="highlighter-rouge">.transform()</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">coffee</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'coffee-script'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">through</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'through'</span><span class="p">);</span>
+
+<span class="nx">b</span><span class="p">.</span><span class="nx">transform</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">file</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="s1">''</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">through</span><span class="p">(</span><span class="nx">write</span><span class="p">,</span> <span class="nx">end</span><span class="p">);</span>
+
+    <span class="kd">function</span> <span class="nx">write</span> <span class="p">(</span><span class="nx">buf</span><span class="p">)</span> <span class="p">{</span> <span class="nx">data</span> <span class="o">+=</span> <span class="nx">buf</span> <span class="p">}</span>
+    <span class="kd">function</span> <span class="nx">end</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">queue</span><span class="p">(</span><span class="nx">coffee</span><span class="p">.</span><span class="nx">compile</span><span class="p">(</span><span class="nx">data</span><span class="p">));</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">queue</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+</div>
+
+<p>Note that on the command-line with the <code class="highlighter-rouge">-c</code> flag you can just do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify -c 'coffee -sc' main.coffee &gt; bundle.js
+</code></pre>
+</div>
+
+<p>Or better still, use the <a href="https://github.com/jnordberg/coffeeify">coffeeify</a><br />
+module:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ npm install coffeeify
+$ browserify -t coffeeify main.coffee &gt; bundle.js
+</code></pre>
+</div>
+
+<p>If <code class="highlighter-rouge">opts.global</code> is <code class="highlighter-rouge">true</code>, the transform will operate on ALL files, despite<br />
+whether they exist up a level in a <code class="highlighter-rouge">node_modules/</code> directory. Use global<br />
+transforms cautiously and sparingly, since most of the time an ordinary<br />
+transform will suffice. You can also not configure global transforms in a<br />
+<code class="highlighter-rouge">package.json</code> like you can with ordinary transforms.</p>
+
+<p>Global transforms always run after any ordinary transforms have run.</p>
+
+<p>Transforms may obtain options from the command-line with<br />
+<a href="https://www.npmjs.com/package/subarg">subarg</a> syntax:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify -t [ foo --bar=555 ] main.js
+</code></pre>
+</div>
+
+<p>or from the api:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>b.transform('foo', { bar: 555 })
+</code></pre>
+</div>
+
+<p>In both cases, these options are provided as the second argument to the<br />
+transform function:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>module.exports = function (file, opts) { /* opts.bar === 555 */ }
+</code></pre>
+</div>
+
+<p>Options sent to the browserify constructor are also provided under<br />
+<code class="highlighter-rouge">opts._flags</code>. These browserify options are sometimes required if your transform<br />
+needs to do something different when browserify is run in debug mode, for<br />
+example.</p>
+
+<h2 id="bpluginplugin-opts">b.plugin(plugin, opts)</h2>
+
+<p>Register a <code class="highlighter-rouge">plugin</code> with <code class="highlighter-rouge">opts</code>. Plugins can be a string module name or a<br />
+function the same as transforms.</p>
+
+<p><code class="highlighter-rouge">plugin(b, opts)</code> is called with the browserify instance <code class="highlighter-rouge">b</code>.</p>
+
+<p>For more information, consult the plugins section below.</p>
+
+<h2 id="bpipeline">b.pipeline</h2>
+
+<p>There is an internal<br />
+<a href="https://www.npmjs.com/package/labeled-stream-splicer">labeled-stream-splicer</a><br />
+pipeline with these labels:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">'record'</code> - save inputs to play back later on subsequent <code class="highlighter-rouge">bundle()</code> calls</li>
+  <li><code class="highlighter-rouge">'deps'</code> - <a href="https://www.npmjs.com/package/module-deps">module-deps</a></li>
+  <li><code class="highlighter-rouge">'json'</code> - adds <code class="highlighter-rouge">module.exports=</code> to the beginning of json files</li>
+  <li><code class="highlighter-rouge">'unbom'</code> - remove byte-order markers</li>
+  <li><code class="highlighter-rouge">'unshebang'</code> - remove #! labels on the first line</li>
+  <li><code class="highlighter-rouge">'syntax'</code> - check for syntax errors</li>
+  <li><code class="highlighter-rouge">'sort'</code> - sort the dependencies for deterministic bundles</li>
+  <li><code class="highlighter-rouge">'dedupe'</code> - remove duplicate source contents</li>
+  <li><code class="highlighter-rouge">'label'</code> - apply integer labels to files</li>
+  <li><code class="highlighter-rouge">'emit-deps'</code> - emit <code class="highlighter-rouge">'dep'</code> event</li>
+  <li><code class="highlighter-rouge">'debug'</code> - apply source maps</li>
+  <li><code class="highlighter-rouge">'pack'</code> - <a href="https://www.npmjs.com/package/browser-pack">browser-pack</a></li>
+  <li><code class="highlighter-rouge">'wrap'</code> - apply final wrapping, <code class="highlighter-rouge">require=</code> and a newline and semicolon</li>
+</ul>
+
+<p>You can call <code class="highlighter-rouge">b.pipeline.get()</code> with a label name to get a handle on a stream pipeline<br />
+that you can <code class="highlighter-rouge">push()</code>, <code class="highlighter-rouge">unshift()</code>, or <code class="highlighter-rouge">splice()</code> to insert your own transform<br />
+streams.</p>
+
+<h1 id="bresetopts">b.reset(opts)</h1>
+
+<p>Reset the pipeline back to a normal state. This function is called automatically<br />
+when <code class="highlighter-rouge">bundle()</code> is called multiple times.</p>
+
+<p>This function triggers a ‘reset’ event.</p>
+
+<h1 id="packagejson">package.json</h1>
+
+<p>browserify uses the <code class="highlighter-rouge">package.json</code> in its module resolution algorithm, just like<br />
+node. If there is a <code class="highlighter-rouge">"main"</code> field, browserify will start resolving the package<br />
+at that point. If there is no <code class="highlighter-rouge">"main"</code> field, browserify will look for an<br />
+<code class="highlighter-rouge">"index.js"</code> file in the module root directory. Here are some more<br />
+sophisticated things you can do in the package.json:</p>
+
+<h2 id="browser-field">browser field</h2>
+
+<p>There is a special “<a href="https://gist.github.com/4339901">browser</a>” field you can<br />
+set in your package.json on a per-module basis to override file resolution for<br />
+browser-specific versions of files.</p>
+
+<p>For example, if you want to have a browser-specific module entry point for your<br />
+<code class="highlighter-rouge">"main"</code> field you can just set the <code class="highlighter-rouge">"browser"</code> field to a string:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="s2">"browser"</span><span class="err">:</span><span class="w"> </span><span class="s2">"./browser.js"</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>or you can have overrides on a per-file basis:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="s2">"browser"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="nt">"fs"</span><span class="p">:</span><span class="w"> </span><span class="s2">"level-fs"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"./lib/ops.js"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./browser/opts.js"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Note that the browser field only applies to files in the local module, and like<br />
+transforms, it doesn’t apply into <code class="highlighter-rouge">node_modules</code> directories.</p>
+
+<h2 id="browserifytransform">browserify.transform</h2>
+
+<p>You can specify source transforms in the package.json in the<br />
+<code class="highlighter-rouge">browserify.transform</code> field. There is more information about how source<br />
+transforms work in package.json on the<br />
+<a href="https://github.com/substack/module-deps#transforms">module-deps readme</a>.</p>
+
+<p>For example, if your module requires <a href="https://www.npmjs.com/package/brfs">brfs</a>, you<br />
+can add</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="s2">"browserify"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"transform"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"brfs"</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>to your package.json. Now when somebody <code class="highlighter-rouge">require()</code>s your module, brfs will<br />
+automatically be applied to the files in your module without explicit<br />
+intervention by the person using your module. Make sure to add transforms to<br />
+your package.json dependencies field.</p>
+
+<h1 id="events">events</h1>
+
+<h2 id="bonfile-function-file-id-parent-">b.on(‘file’, function (file, id, parent) {})</h2>
+<p>## b.pipeline.on(‘file’, function (file, id, parent) {})</p>
+
+<p>When a file is resolved for the bundle, the bundle emits a <code class="highlighter-rouge">'file'</code> event with<br />
+the full <code class="highlighter-rouge">file</code> path, the <code class="highlighter-rouge">id</code> string passed to <code class="highlighter-rouge">require()</code>, and the <code class="highlighter-rouge">parent</code><br />
+object used by<br />
+<a href="https://github.com/defunctzombie/node-browser-resolve">browser-resolve</a>.</p>
+
+<p>You could use the <code class="highlighter-rouge">file</code> event to implement a file watcher to regenerate bundles<br />
+when files change.</p>
+
+<h2 id="bonpackage-function-pkg-">b.on(‘package’, function (pkg) {})</h2>
+<p>## b.pipeline.on(‘package’, function (pkg) {})</p>
+
+<p>When a package file is read, this event fires with the contents. The package<br />
+directory is available at <code class="highlighter-rouge">pkg.__dirname</code>.</p>
+
+<h2 id="bonbundle-function-bundle-">b.on(‘bundle’, function (bundle) {})</h2>
+
+<p>When <code class="highlighter-rouge">.bundle()</code> is called, this event fires with the <code class="highlighter-rouge">bundle</code> output stream.</p>
+
+<h2 id="bonreset-function--">b.on(‘reset’, function () {})</h2>
+
+<p>When the <code class="highlighter-rouge">.reset()</code> method is called or implicitly called by another call to<br />
+<code class="highlighter-rouge">.bundle()</code>, this event fires.</p>
+
+<h2 id="bontransform-function-tr-file-">b.on(‘transform’, function (tr, file) {})</h2>
+<p>## b.pipeline.on(‘transform’, function (tr, file) {})</p>
+
+<p>When a transform is applied to a file, the <code class="highlighter-rouge">'transform'</code> event fires on the<br />
+bundle stream with the transform stream <code class="highlighter-rouge">tr</code> and the <code class="highlighter-rouge">file</code> that the transform<br />
+is being applied to.</p>
+
+<h1 id="plugins">plugins</h1>
+
+<p>For some more advanced use-cases, a transform is not sufficiently extensible.<br />
+Plugins are modules that take the bundle instance as their first parameter and<br />
+an option hash as their second.</p>
+
+<p>Plugins can be used to do perform some fancy features that transforms can’t do.<br />
+For example, <a href="https://www.npmjs.com/package/factor-bundle">factor-bundle</a> is a<br />
+plugin that can factor out common dependencies from multiple entry-points into a<br />
+common bundle. Use plugins with <code class="highlighter-rouge">-p</code> and pass options to plugins with<br />
+<a href="https://www.npmjs.com/package/subarg">subarg</a> syntax:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>browserify x.js y.js -p [ factor-bundle -o bundle/x.js -o bundle/y.js ] \
+  &gt; bundle/common.js
+</code></pre>
+</div>
+
+<p>For a list of plugins, consult the<br />
+<a href="https://www.npmjs.com/browse/keyword/browserify-plugin">browserify-plugin tag</a><br />
+on npm.</p>
+
+<h1 id="list-of-source-transforms">list of source transforms</h1>
+
+<p>There is a <a href="https://github.com/substack/node-browserify/wiki/list-of-transforms">wiki page that lists the known browserify<br />
+transforms</a>.</p>
+
+<p>If you write a transform, make sure to add your transform to that wiki page and<br />
+add a package.json keyword of <code class="highlighter-rouge">browserify-transform</code> so that<br />
+<a href="https://www.npmjs.com/browse/keyword/browserify-transform">people can browse for all the browserify<br />
+transforms</a> on npmjs.org.</p>
+
+<h1 id="third-party-tools">third-party tools</h1>
+
+<p>There is a <a href="https://github.com/substack/node-browserify/wiki/browserify-tools">wiki page that lists the known browserify<br />
+tools</a>.</p>
+
+<p>If you write a tool, make sure to add it to that wiki page and<br />
+add a package.json keyword of <code class="highlighter-rouge">browserify-tool</code> so that<br />
+<a href="https://www.npmjs.com/browse/keyword/browserify-tool">people can browse for all the browserify<br />
+tools</a> on npmjs.org.</p>
+</div>
+  </div>
+
+  <footer></footer>
+
+</article>
+<script src="/assets/js/anchor.min.js"></script>
+<script src="/assets/js/jquery.min.js"></script>
+<!--
+<script src="/assets/js/clipboard.min.js"></script>
+-->
+
+<script>
+  anchors.options = {
+    placement: 'left'
+  };
+  anchors.add('.page-content h1, .page-content h2, .page-content h3, .page-content h4, .page-content h5, .page-content h6');
+
+  /*
+  $('pre.highlight').after($('<button class="btn-copy">Copy</button>'));
+  var clipboard = new Clipboard('.btn-copy', {
+    text: function(trigger) {
+      return $(trigger).prev().text();
+    }
+  });
+  */
+
+  (function() {
+    var $toc = $('#toc'),
+      $nav = $('<ul>'),
+      track = [];
+
+    function getParentNav(level) {
+      var i = track.length,
+        $el = $('<li>');
+      if (!track.length) {
+        return $el.appendTo($nav);
+      }
+      while (i--) {
+        var last = track[i];
+        if (level === last.level) {
+          return $el.appendTo(last.$el.closest('ul'));
+        }
+        if (level - last.level == 1) {
+          return $el.appendTo($('<ul>').appendTo(last.$el));
+        }
+      }
+    }
+
+    function generateTableOfContents(els) {
+      var test, href;
+      for (var i = 0; i < els.length; i++) {
+        test = els[i].textContent;
+        href = els[i].querySelector('.anchorjs-link').getAttribute('href');
+        addNavItem(href, test, els[i].tagName.slice(1));
+      }
+    }
+
+    function addNavItem(href, text, level) {
+      var $a = $('<a href="' + href + '">' + text + '</a>'),
+        $el = getParentNav(level);
+      if (!$el) {
+        return;
+      }
+      $el.append($a);
+      track.push({
+        level: level,
+        $el: $el
+      });
+    }
+
+    generateTableOfContents(anchors.elements);
+    $nav.appendTo($toc);
+  })();
+
+  $(document.body).on('keydown', function(e) {
+    if (e.altKey && e.keyCode == 36) {
+      location.href = '/';
+      e.preventDefault();
+    }
+  });
+</script>
+
+
+  </body>
+</html>

@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Groovy Syntax</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+  <body>
+    <article class="page">
+  <header class="page-header">
+    <div class="container">
+      <h1 class="page-title">Groovy Syntax</h1>
+      <p class="page-tags">
+        
+        <span class="tag">Groovy</span>
+        
+        <span class="tag">Syntax</span>
+        
+      </p>
+      <p class="page-meta">
+        <time datetime="1970-01-01T00:00:00+08:00">Jan 1, 1970</time>
+      </p>
+    </div>
+  </header>
+
+  
+  <div class="container">
+    <h1>Table Of Contents</h1>
+    <div id="toc"></div>
+  </div>
+  
+
+  <div class="page-content">
+    <div class="container"><h1 id="comments">Comments</h1>
+
+<h2 id="single-line-comment">Single line comment</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// a standalone single line comment</span>
+<span class="n">println</span> <span class="s2">"hello"</span> <span class="c1">// a comment till the end of the line</span>
+</code></pre>
+</div>
+
+<h2 id="multiline-comment">Multiline comment</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="cm">/* a standalone multiline comment
+   spanning two lines */</span>
+<span class="n">println</span> <span class="s2">"hello"</span> <span class="cm">/* a multiline comment starting
+                   at the end of a statement */</span>
+<span class="n">println</span> <span class="mi">1</span> <span class="cm">/* one */</span> <span class="o">+</span> <span class="mi">2</span> <span class="cm">/* two */</span>
+</code></pre>
+</div>
+
+<h2 id="groovydoc-comment">GroovyDoc comment</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="cm">/**
+ * A Class description
+ */</span>
+<span class="kd">class</span> <span class="nc">Person</span> <span class="o">{</span>
+    <span class="cm">/** the name of the person */</span>
+    <span class="n">String</span> <span class="n">name</span>
+
+    <span class="cm">/**
+     * Creates a greeting method for a certain person.
+     *
+     * @param otherPerson the person to greet
+     * @return a greeting message
+     */</span>
+    <span class="n">String</span> <span class="nf">greet</span><span class="o">(</span><span class="n">String</span> <span class="n">otherPerson</span><span class="o">)</span> <span class="o">{</span>
+       <span class="s2">"Hello ${otherPerson}"</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h2 id="shebang-line">Shebang line</h2>
+
+<p>often called the shebang line understood by UNIX systems which allows scripts to be run directly from the command-line.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="err">#</span><span class="o">!/</span><span class="n">usr</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">env</span> <span class="n">groovy</span>
+<span class="n">println</span> <span class="s">"Hello from the shebang line"</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">#</code> character must be the first character of the file.</p>
+
+<h1 id="keywords">Keywords</h1>
+
+<ul>
+  <li>as</li>
+  <li>assert</li>
+  <li>break</li>
+  <li>case</li>
+  <li>catch</li>
+  <li>class</li>
+  <li>const</li>
+  <li>continue</li>
+  <li>def</li>
+  <li>default</li>
+  <li>do</li>
+  <li>else</li>
+  <li>enum</li>
+  <li>extends</li>
+  <li>false</li>
+  <li>finally</li>
+  <li>for</li>
+  <li>goto</li>
+  <li>if</li>
+  <li>implements</li>
+  <li>import</li>
+  <li>in</li>
+  <li>instanceof</li>
+  <li>interface</li>
+  <li>new</li>
+  <li>null</li>
+  <li>package</li>
+  <li>return</li>
+  <li>super</li>
+  <li>switch</li>
+  <li>this</li>
+  <li>throw</li>
+  <li>throws</li>
+  <li>trait</li>
+  <li>true</li>
+  <li>try</li>
+  <li>while</li>
+</ul>
+
+<h1 id="identifiers">Identifiers</h1>
+
+<h2 id="normal-identifiers">Normal identifiers</h2>
+
+<p>A letter can be in the following ranges:</p>
+
+<ul>
+  <li>‘a’ to ‘z’ (lowercase ascii letter)</li>
+  <li>‘A’ to ‘Z’ (uppercase ascii letter)</li>
+  <li>‘\u00C0’ to ‘\u00D6’</li>
+  <li>‘\u00D8’ to ‘\u00F6’</li>
+  <li>‘\u00F8’ to ‘\u00FF’</li>
+  <li>‘\u0100’ to ‘\uFFFE’</li>
+</ul>
+
+<h2 id="quoted-identifiers">Quoted identifiers</h2>
+
+<p>For instance, the name part of the <code class="highlighter-rouge">person.name</code> expression can be quoted with <code class="highlighter-rouge">person."name"</code> or <code class="highlighter-rouge">person.'name'</code>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">map</span> <span class="o">=</span> <span class="o">[:]</span>
+
+<span class="n">map</span><span class="o">.</span><span class="s2">"an identifier with a space and double quotes"</span> <span class="o">=</span> <span class="s2">"ALLOWED"</span>
+<span class="n">map</span><span class="o">.</span><span class="s1">'with-dash-signs-and-single-quotes'</span> <span class="o">=</span> <span class="s2">"ALLOWED"</span>
+
+<span class="k">assert</span> <span class="n">map</span><span class="o">.</span><span class="s2">"an identifier with a space and double quotes"</span> <span class="o">==</span> <span class="s2">"ALLOWED"</span>
+<span class="k">assert</span> <span class="n">map</span><span class="o">.</span><span class="s1">'with-dash-signs-and-single-quotes'</span> <span class="o">==</span> <span class="s2">"ALLOWED"</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">map</span><span class="o">.</span><span class="s1">'single quote'</span>
+<span class="n">map</span><span class="o">.</span><span class="s2">"double quote"</span>
+<span class="n">map</span><span class="o">.</span><span class="s1">'''triple single quote'''</span>
+<span class="n">map</span><span class="o">.</span><span class="s2">"""triple double quote"""</span>
+<span class="n">map</span><span class="o">.</span><span class="s">/slashy string/</span>
+<span class="n">map</span><span class="o">.</span><span class="s">$/dollar slashy string/$</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">firstname</span> <span class="o">=</span> <span class="s2">"Homer"</span>
+<span class="n">map</span><span class="o">.</span><span class="s2">"Simson-${firstname}"</span> <span class="o">=</span> <span class="s2">"Homer Simson"</span>
+
+<span class="k">assert</span> <span class="n">map</span><span class="o">.</span><span class="s1">'Simson-Homer'</span> <span class="o">==</span> <span class="s2">"Homer Simson"</span>
+</code></pre>
+</div>
+
+<h1 id="strings">Strings</h1>
+
+<p>Text literals are represented in the form of chain of characters called strings. Groovy lets you instantiate <code class="highlighter-rouge">java.lang.String</code> objects, as well as GStrings (<code class="highlighter-rouge">groovy.lang.GString</code>) which are also called interpolated strings in other programming languages.</p>
+
+<h2 id="single-quoted-string">Single quoted string</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="s1">'a single quoted string'</span>
+</code></pre>
+</div>
+
+<p>Single quoted strings are plain <code class="highlighter-rouge">java.lang.String</code> and <strong>don’t support interpolation</strong>.</p>
+
+<h2 id="string-concatenation">String concatenation</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">assert</span> <span class="s1">'ab'</span> <span class="o">==</span> <span class="s1">'a'</span> <span class="o">+</span> <span class="s1">'b'</span>
+</code></pre>
+</div>
+
+<h2 id="triple-single-quoted-string">Triple single quoted string</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="s1">'''a triple single quoted string'''</span>
+</code></pre>
+</div>
+
+<p>Triple single quoted strings are plain <code class="highlighter-rouge">java.lang.String</code> and <strong>don’t support interpolation</strong>.</p>
+
+<p>Triple single quoted strings are multiline.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">aMultilineString</span> <span class="o">=</span> <span class="s1">'''line one
+line two
+line three'''</span>
+</code></pre>
+</div>
+
+<p>When creating a string as follows:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">startingAndEndingWithANewline</span> <span class="o">=</span> <span class="s1">'''
+line one
+line two
+line three
+'''</span>
+</code></pre>
+</div>
+
+<p>You will notice that the resulting string contains a newline character as first character. It is possible to strip that character by escaping the newline with a backslash:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">strippedFirstNewline</span> <span class="o">=</span> <span class="s1">'''\
+line one
+line two
+line three
+'''</span>
+
+<span class="k">assert</span> <span class="o">!</span><span class="n">strippedFirstNewline</span><span class="o">.</span><span class="na">startsWith</span><span class="o">(</span><span class="s1">'\n'</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<h2 id="escaping-special-characters">Escaping special characters</h2>
+
+<p>You can escape single quotes with the the backslash character to avoid terminating the string literal:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="s1">'an escaped single quote: \' needs a backslash'</span>
+</code></pre>
+</div>
+
+<p>And you can escape the escape character itself with a double backslash:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="s1">'an escaped escape character: \\ needs a double backslash'</span>
+</code></pre>
+</div>
+
+<h2 id="unicode-escape-sequence">Unicode escape sequence</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="s1">'The Euro currency symbol: \u20AC'</span>
+</code></pre>
+</div>
+
+<h2 id="double-quoted-string">Double quoted string</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="s2">"a double quoted string"</span>
+</code></pre>
+</div>
+
+<p>Double quoted strings are plain <code class="highlighter-rouge">java.lang.String</code> if there’s no interpolated expression, but are <code class="highlighter-rouge">groovy.lang.GString</code> instances if interpolation is present.</p>
+
+<h3 id="string-interpolation">String interpolation</h3>
+
+<p>Here, we have a string with a placeholder referencing a local variable:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">'Guillaume'</span> <span class="c1">// a plain string</span>
+<span class="kt">def</span> <span class="n">greeting</span> <span class="o">=</span> <span class="s2">"Hello ${name}"</span>
+
+<span class="k">assert</span> <span class="n">greeting</span><span class="o">.</span><span class="na">toString</span><span class="o">()</span> <span class="o">==</span> <span class="s1">'Hello Guillaume'</span>
+</code></pre>
+</div>
+
+<p>But any Groovy expression is valid:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">sum</span> <span class="o">=</span> <span class="s2">"The sum of 2 and 3 equals ${2 + 3}"</span>
+<span class="k">assert</span> <span class="n">sum</span><span class="o">.</span><span class="na">toString</span><span class="o">()</span> <span class="o">==</span> <span class="s1">'The sum of 2 and 3 equals 5'</span>
+</code></pre>
+</div>
+
+<p>we can also use a lone <code class="highlighter-rouge">$</code> sign prefixing a dotted expression:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">person</span> <span class="o">=</span> <span class="o">[</span><span class="nl">name:</span> <span class="s1">'Guillaume'</span><span class="o">,</span> <span class="nl">age:</span> <span class="mi">36</span><span class="o">]</span>
+<span class="k">assert</span> <span class="s2">"$person.name is $person.age years old"</span> <span class="o">==</span> <span class="s1">'Guillaume is 36 years old'</span>
+</code></pre>
+</div>
+
+<p>The following statement will throw a groovy.lang.MissingPropertyException because Groovy believes you’re trying to access the toString property of that number, which doesn’t exist:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">shouldFail</span><span class="o">(</span><span class="n">MissingPropertyException</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">println</span> <span class="s2">"$number.toString()"</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>You can think of “<code class="highlighter-rouge">$number.toString()</code>” as being interpreted by the parser as “<code class="highlighter-rouge">${number.toString}()</code>”.</p>
+
+<p>If you need to escape the <code class="highlighter-rouge">$</code> or <code class="highlighter-rouge">${}</code> placeholders in a GString:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">assert</span> <span class="s1">'${name}'</span> <span class="o">==</span> <span class="s2">"\${name}"</span>
+</code></pre>
+</div>
+
+<h3 id="special-case-of-interpolating-closure-expressions">Special case of interpolating closure expressions</h3>
+
+<p>When the placeholder contains an arrow, <code class="highlighter-rouge">${→}</code>, the expression is actually a closure expression:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">sParameterLessClosure</span> <span class="o">=</span> <span class="s2">"1 + 2 == ${-&gt; 3}"</span>
+<span class="k">assert</span> <span class="n">sParameterLessClosure</span> <span class="o">==</span> <span class="s1">'1 + 2 == 3'</span>
+
+<span class="kt">def</span> <span class="n">sOneParamClosure</span> <span class="o">=</span> <span class="s2">"1 + 2 == ${ w -&gt; w &lt;&lt; 3}"</span>
+<span class="k">assert</span> <span class="n">sOneParamClosure</span> <span class="o">==</span> <span class="s1">'1 + 2 == 3'</span>
+</code></pre>
+</div>
+
+<p>closures have an interesting advantage over mere expressions: lazy evaluation:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">number</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="kt">def</span> <span class="n">eagerGString</span> <span class="o">=</span> <span class="s2">"value == ${number}"</span>
+<span class="kt">def</span> <span class="n">lazyGString</span> <span class="o">=</span> <span class="s2">"value == ${ -&gt; number }"</span>
+
+<span class="k">assert</span> <span class="n">eagerGString</span> <span class="o">==</span> <span class="s2">"value == 1"</span>
+<span class="k">assert</span> <span class="n">lazyGString</span> <span class="o">==</span>  <span class="s2">"value == 1"</span>
+
+<span class="n">number</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="k">assert</span> <span class="n">eagerGString</span> <span class="o">==</span> <span class="s2">"value == 1"</span>
+<span class="k">assert</span> <span class="n">lazyGString</span> <span class="o">==</span>  <span class="s2">"value == 2"</span>
+</code></pre>
+</div>
+
+<h3 id="interoperability-with-java">Interoperability with Java</h3>
+
+<p>When a method (whether implemented in Java or Groovy) expects a <code class="highlighter-rouge">java.lang.String</code>, but we pass a <code class="highlighter-rouge">groovy.lang.GString</code> instance, the toString() method of the GString is automatically and transparently called.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">String</span> <span class="nf">takeString</span><span class="o">(</span><span class="n">String</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">assert</span> <span class="n">message</span> <span class="k">instanceof</span> <span class="n">String</span>
+    <span class="k">return</span> <span class="n">message</span>
+<span class="o">}</span>
+
+<span class="kt">def</span> <span class="n">message</span> <span class="o">=</span> <span class="s2">"The message is ${'hello'}"</span>
+<span class="k">assert</span> <span class="n">message</span> <span class="k">instanceof</span> <span class="n">GString</span>
+
+<span class="kt">def</span> <span class="n">result</span> <span class="o">=</span> <span class="n">takeString</span><span class="o">(</span><span class="n">message</span><span class="o">)</span>
+<span class="k">assert</span> <span class="n">result</span> <span class="k">instanceof</span> <span class="n">String</span>
+<span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="s1">'The message is hello'</span>
+</code></pre>
+</div>
+
+<h3 id="gstring-and-string-hashcodes">GString and String hashCodes</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">assert</span> <span class="s2">"one: ${1}"</span><span class="o">.</span><span class="na">hashCode</span><span class="o">()</span> <span class="o">!=</span> <span class="s2">"one: 1"</span><span class="o">.</span><span class="na">hashCode</span><span class="o">()</span>
+</code></pre>
+</div>
+
+<p>GString and Strings having different hashCode values, using GString as Map keys should be avoided, especially if we try to retrieve an associated value with a String instead of a GString.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">key</span> <span class="o">=</span> <span class="s2">"a"</span>
+<span class="kt">def</span> <span class="n">m</span> <span class="o">=</span> <span class="o">[</span><span class="s2">"${key}"</span><span class="o">:</span> <span class="s2">"letter ${key}"</span><span class="o">]</span>
+
+<span class="k">assert</span> <span class="n">m</span><span class="o">[</span><span class="s2">"a"</span><span class="o">]</span> <span class="o">==</span> <span class="kc">null</span>
+</code></pre>
+</div>
+
+<h2 id="triple-double-quoted-string">Triple double quoted string</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">'Groovy'</span>
+<span class="kt">def</span> <span class="n">template</span> <span class="o">=</span> <span class="s2">"""
+    Dear Mr ${name},
+
+    You're the winner of the lottery!
+
+    Yours sincerly,
+
+    Dave
+"""</span>
+
+<span class="k">assert</span> <span class="n">template</span><span class="o">.</span><span class="na">toString</span><span class="o">().</span><span class="na">contains</span><span class="o">(</span><span class="s1">'Groovy'</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<h2 id="slashy-string">Slashy string</h2>
+
+<p>Beyond the usual quoted strings, Groovy offers slashy strings, which use <code class="highlighter-rouge">/</code> as delimiters. Slashy strings are particularly useful for defining regular expressions and patterns, as there is no need to escape backslashes.</p>
+
+<p>Example of a slashy string:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">fooPattern</span> <span class="o">=</span> <span class="s">/.*foo.*/</span>
+<span class="k">assert</span> <span class="n">fooPattern</span> <span class="o">==</span> <span class="s1">'.*foo.*'</span>
+</code></pre>
+</div>
+
+<p>Only forward slashes need to be escaped with a backslash:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">escapeSlash</span> <span class="o">=</span> <span class="s">/The character \/</span> <span class="n">is</span> <span class="n">a</span> <span class="n">forward</span> <span class="n">slash</span><span class="s">/
+assert escapeSlash == 'The character /</span> <span class="n">is</span> <span class="n">a</span> <span class="n">forward</span> <span class="n">slash</span><span class="err">'</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">Slashy</span> <span class="n">strings</span> <span class="n">are</span> <span class="nl">multiline:</span>
+
+<span class="kt">def</span> <span class="n">multilineSlashy</span> <span class="o">=</span> <span class="s">/one
+    two
+    three/</span>
+
+<span class="k">assert</span> <span class="n">multilineSlashy</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s1">'\n'</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>Slashy strings can also be interpolated (ie. a GString):</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">'blue'</span>
+<span class="kt">def</span> <span class="n">interpolatedSlashy</span> <span class="o">=</span> <span class="s">/a ${color} car/</span>
+
+<span class="k">assert</span> <span class="n">interpolatedSlashy</span> <span class="o">==</span> <span class="s1">'a blue car'</span>
+</code></pre>
+</div>
+
+<h2 id="dollar-slashy-string">Dollar slashy string</h2>
+
+<p>Dollar slashy strings are multiline GStrings delimited with an opening <code class="highlighter-rouge">$/</code> and and a closing <code class="highlighter-rouge">/$</code>. The escaping character is the dollar sign, and it can escape another dollar, or a forward slash. But both dollar and forward slashes don’t need to be escaped, except to escape the dollar of a string subsequence that would start like a GString placeholder sequence, or if you need to escape a sequence that would start like a closing dollar slashy string delimiter.</p>
+
+<p>Here’s an example:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">name</span> <span class="o">=</span> <span class="s2">"Guillaume"</span>
+<span class="kt">def</span> <span class="n">date</span> <span class="o">=</span> <span class="s2">"April, 1st"</span>
+
+<span class="kt">def</span> <span class="n">dollarSlashy</span> <span class="o">=</span> <span class="n">$</span><span class="s">/
+    Hello $name,
+    today we're ${date}.
+
+    $ dollar sign
+    $$ escaped dollar sign
+    \ backslash
+    /</span> <span class="n">forward</span> <span class="n">slash</span>
+    <span class="n">$</span><span class="s">/ escaped forward slash
+    $/</span><span class="n">$</span> <span class="n">escaped</span> <span class="n">dollar</span> <span class="n">slashy</span> <span class="n">string</span> <span class="n">delimiter</span>
+<span class="s">/$
+
+assert [
+    'Guillaume',
+    'April, 1st',
+    '$ dollar sign',
+    '$ escaped dollar sign',
+    '\\ backslash',
+    '/</span> <span class="n">forward</span> <span class="n">slash</span><span class="s1">',
+        '</span><span class="n">$</span><span class="s">/ escaped forward slash',
+        '/</span><span class="n">$</span> <span class="n">escaped</span> <span class="n">dollar</span> <span class="n">slashy</span> <span class="n">string</span> <span class="n">delimiter</span><span class="err">'</span>
+
+        <span class="o">].</span><span class="na">each</span> <span class="o">{</span> <span class="n">dollarSlashy</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">it</span><span class="o">)</span> <span class="o">}</span>
+</code></pre>
+</div>
+
+<h2 id="string-summary-table">String summary table</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>String name</th>
+      <th>String syntax</th>
+      <th>Interpolated</th>
+      <th>Multiline</th>
+      <th>Escape character</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Single quoted</td>
+      <td><code class="highlighter-rouge">'...'</code></td>
+      <td> </td>
+      <td> </td>
+      <td><code class="highlighter-rouge">\</code></td>
+    </tr>
+    <tr>
+      <td>Triple single quoted</td>
+      <td><code class="highlighter-rouge">'''...'''</code></td>
+      <td> </td>
+      <td>√</td>
+      <td><code class="highlighter-rouge">\</code></td>
+    </tr>
+    <tr>
+      <td>Double quoted</td>
+      <td><code class="highlighter-rouge">"..."</code></td>
+      <td>√</td>
+      <td> </td>
+      <td><code class="highlighter-rouge">\</code></td>
+    </tr>
+    <tr>
+      <td>Triple double quoted</td>
+      <td><code class="highlighter-rouge">"""..."""</code></td>
+      <td>√</td>
+      <td>√</td>
+      <td><code class="highlighter-rouge">\</code></td>
+    </tr>
+    <tr>
+      <td>Slashy</td>
+      <td><code class="highlighter-rouge">/.../</code></td>
+      <td>√</td>
+      <td>√</td>
+      <td><code class="highlighter-rouge">\</code></td>
+    </tr>
+    <tr>
+      <td>Dollar slashy</td>
+      <td><code class="highlighter-rouge">$/.../$</code></td>
+      <td>√</td>
+      <td>√</td>
+      <td><code class="highlighter-rouge">$</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="characters">Characters</h2>
+
+<p>Unlike Java, Groovy doesn’t have an explicit character literal. However, you can be explicit about making a Groovy string an actual character, by three different means:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">char</span> <span class="n">c1</span> <span class="o">=</span> <span class="s1">'A'</span>
+<span class="k">assert</span> <span class="n">c1</span> <span class="k">instanceof</span> <span class="n">Character</span>
+
+<span class="kt">def</span> <span class="n">c2</span> <span class="o">=</span> <span class="s1">'B'</span> <span class="k">as</span> <span class="kt">char</span>
+<span class="k">assert</span> <span class="n">c2</span> <span class="k">instanceof</span> <span class="n">Character</span>
+
+<span class="kt">def</span> <span class="n">c3</span> <span class="o">=</span> <span class="o">(</span><span class="kt">char</span><span class="o">)</span><span class="s1">'C'</span>
+<span class="k">assert</span> <span class="n">c3</span> <span class="k">instanceof</span> <span class="n">Character</span>
+</code></pre>
+</div>
+
+<h1 id="numbers">Numbers</h1>
+
+<p>Groovy supports different kinds of integral literals and decimal literals, backed by the usual <code class="highlighter-rouge">Number</code> types of Java.</p>
+
+<h2 id="integral-literals">Integral literals</h2>
+
+<p>The integral literal types are the same as in Java:</p>
+
+<ul>
+  <li>byte</li>
+  <li>char</li>
+  <li>short</li>
+  <li>int</li>
+  <li>long</li>
+  <li>java.lang.BigInteger</li>
+</ul>
+
+<p>You can create integral numbers of those types with the following declarations:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// primitive types</span>
+<span class="kt">byte</span>  <span class="n">b</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="kt">char</span>  <span class="n">c</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="kt">short</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="kt">int</span>   <span class="n">i</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="kt">long</span>  <span class="n">l</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="c1">// infinite precision</span>
+<span class="n">BigInteger</span> <span class="n">bi</span> <span class="o">=</span>  <span class="mi">6</span>
+</code></pre>
+</div>
+
+<p>If you use optional typing by using the def keyword, the type of the integral number will vary: it’ll adapt to the capacity of the type that can hold that number.</p>
+
+<p>For positive numbers:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="k">assert</span> <span class="n">a</span> <span class="k">instanceof</span> <span class="n">Integer</span>
+
+<span class="c1">// Integer.MAX_VALUE</span>
+<span class="kt">def</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">2147483647</span>
+<span class="k">assert</span> <span class="n">b</span> <span class="k">instanceof</span> <span class="n">Integer</span>
+
+<span class="c1">// Integer.MAX_VALUE + 1</span>
+<span class="kt">def</span> <span class="n">c</span> <span class="o">=</span> <span class="mi">2147483648</span>
+<span class="k">assert</span> <span class="n">c</span> <span class="k">instanceof</span> <span class="n">Long</span>
+
+<span class="c1">// Long.MAX_VALUE</span>
+<span class="kt">def</span> <span class="n">d</span> <span class="o">=</span> <span class="mi">9223372036854775807</span>
+<span class="k">assert</span> <span class="n">d</span> <span class="k">instanceof</span> <span class="n">Long</span>
+
+<span class="c1">// Long.MAX_VALUE + 1</span>
+<span class="kt">def</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">9223372036854775808</span>
+<span class="k">assert</span> <span class="n">e</span> <span class="k">instanceof</span> <span class="n">BigInteger</span>
+</code></pre>
+</div>
+
+<p>As well as for negative numbers:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">na</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="k">assert</span> <span class="n">na</span> <span class="k">instanceof</span> <span class="n">Integer</span>
+
+<span class="c1">// Integer.MIN_VALUE</span>
+<span class="kt">def</span> <span class="n">nb</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2147483648</span>
+<span class="k">assert</span> <span class="n">nb</span> <span class="k">instanceof</span> <span class="n">Integer</span>
+
+<span class="c1">// Integer.MIN_VALUE - 1</span>
+<span class="kt">def</span> <span class="n">nc</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2147483649</span>
+<span class="k">assert</span> <span class="n">nc</span> <span class="k">instanceof</span> <span class="n">Long</span>
+
+<span class="c1">// Long.MIN_VALUE</span>
+<span class="kt">def</span> <span class="n">nd</span> <span class="o">=</span> <span class="o">-</span><span class="mi">9223372036854775808</span>
+<span class="k">assert</span> <span class="n">nd</span> <span class="k">instanceof</span> <span class="n">Long</span>
+
+<span class="c1">// Long.MIN_VALUE - 1</span>
+<span class="kt">def</span> <span class="n">ne</span> <span class="o">=</span> <span class="o">-</span><span class="mi">9223372036854775809</span>
+<span class="k">assert</span> <span class="n">ne</span> <span class="k">instanceof</span> <span class="n">BigInteger</span>
+</code></pre>
+</div>
+
+<h3 id="alternative-non-base-10-representations">Alternative non-base 10 representations</h3>
+
+<p>Numbers can also be represented in binary, octal, hexadecimal and decimal bases.</p>
+
+<p><strong>Binary literal</strong></p>
+
+<p>Binary numbers start with a <code class="highlighter-rouge">0b</code> prefix:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">int</span> <span class="n">xInt</span> <span class="o">=</span> <span class="mi">0</span><span class="n">b10101111</span>
+<span class="k">assert</span> <span class="n">xInt</span> <span class="o">==</span> <span class="mi">175</span>
+
+<span class="kt">short</span> <span class="n">xShort</span> <span class="o">=</span> <span class="mi">0</span><span class="n">b11001001</span>
+<span class="k">assert</span> <span class="n">xShort</span> <span class="o">==</span> <span class="mi">201</span> <span class="k">as</span> <span class="kt">short</span>
+
+<span class="kt">byte</span> <span class="n">xByte</span> <span class="o">=</span> <span class="mi">0</span><span class="n">b11</span>
+<span class="k">assert</span> <span class="n">xByte</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">as</span> <span class="kt">byte</span>
+
+<span class="kt">long</span> <span class="n">xLong</span> <span class="o">=</span> <span class="mi">0</span><span class="n">b101101101101</span>
+<span class="k">assert</span> <span class="n">xLong</span> <span class="o">==</span> <span class="mi">2925</span><span class="n">l</span>
+
+<span class="n">BigInteger</span> <span class="n">xBigInteger</span> <span class="o">=</span> <span class="mi">0</span><span class="n">b111100100001</span>
+<span class="k">assert</span> <span class="n">xBigInteger</span> <span class="o">==</span> <span class="mi">3873</span><span class="n">g</span>
+
+<span class="kt">int</span> <span class="n">xNegativeInt</span> <span class="o">=</span> <span class="o">-</span><span class="mi">0</span><span class="n">b10101111</span>
+<span class="k">assert</span> <span class="n">xNegativeInt</span> <span class="o">==</span> <span class="o">-</span><span class="mi">175</span>
+</code></pre>
+</div>
+
+<p><strong>Octal literal</strong></p>
+
+<p>Octal numbers are specified in the typical format of <code class="highlighter-rouge">0</code> followed by octal digits.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">int</span> <span class="n">xInt</span> <span class="o">=</span> <span class="mi">077</span>
+<span class="k">assert</span> <span class="n">xInt</span> <span class="o">==</span> <span class="mi">63</span>
+
+<span class="kt">short</span> <span class="n">xShort</span> <span class="o">=</span> <span class="mi">011</span>
+<span class="k">assert</span> <span class="n">xShort</span> <span class="o">==</span> <span class="mi">9</span> <span class="k">as</span> <span class="kt">short</span>
+
+<span class="kt">byte</span> <span class="n">xByte</span> <span class="o">=</span> <span class="mi">032</span>
+<span class="k">assert</span> <span class="n">xByte</span> <span class="o">==</span> <span class="mi">26</span> <span class="k">as</span> <span class="kt">byte</span>
+
+<span class="kt">long</span> <span class="n">xLong</span> <span class="o">=</span> <span class="mi">0246</span>
+<span class="k">assert</span> <span class="n">xLong</span> <span class="o">==</span> <span class="mi">166</span><span class="n">l</span>
+
+<span class="n">BigInteger</span> <span class="n">xBigInteger</span> <span class="o">=</span> <span class="mi">01111</span>
+<span class="k">assert</span> <span class="n">xBigInteger</span> <span class="o">==</span> <span class="mi">585</span><span class="n">g</span>
+
+<span class="kt">int</span> <span class="n">xNegativeInt</span> <span class="o">=</span> <span class="o">-</span><span class="mi">077</span>
+<span class="k">assert</span> <span class="n">xNegativeInt</span> <span class="o">==</span> <span class="o">-</span><span class="mi">63</span>
+</code></pre>
+</div>
+
+<p><strong>Hexadecimal literal</strong></p>
+
+<p>Hexadecimal numbers are specified in the typical format of 0x followed by hex digits.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">int</span> <span class="n">xInt</span> <span class="o">=</span> <span class="mh">0x77</span>
+<span class="k">assert</span> <span class="n">xInt</span> <span class="o">==</span> <span class="mi">119</span>
+
+<span class="kt">short</span> <span class="n">xShort</span> <span class="o">=</span> <span class="mh">0xaa</span>
+<span class="k">assert</span> <span class="n">xShort</span> <span class="o">==</span> <span class="mi">170</span> <span class="k">as</span> <span class="kt">short</span>
+
+<span class="kt">byte</span> <span class="n">xByte</span> <span class="o">=</span> <span class="mh">0x3a</span>
+<span class="k">assert</span> <span class="n">xByte</span> <span class="o">==</span> <span class="mi">58</span> <span class="k">as</span> <span class="kt">byte</span>
+
+<span class="kt">long</span> <span class="n">xLong</span> <span class="o">=</span> <span class="mh">0xffff</span>
+<span class="k">assert</span> <span class="n">xLong</span> <span class="o">==</span> <span class="mi">65535</span><span class="n">l</span>
+
+<span class="n">BigInteger</span> <span class="n">xBigInteger</span> <span class="o">=</span> <span class="mh">0xaaaa</span>
+<span class="k">assert</span> <span class="n">xBigInteger</span> <span class="o">==</span> <span class="mi">43690</span><span class="n">g</span>
+
+<span class="n">Double</span> <span class="n">xDouble</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Double</span><span class="o">(</span><span class="s1">'0x1.0p0'</span><span class="o">)</span>
+<span class="k">assert</span> <span class="n">xDouble</span> <span class="o">==</span> <span class="mf">1.0d</span>
+
+<span class="kt">int</span> <span class="n">xNegativeInt</span> <span class="o">=</span> <span class="o">-</span><span class="mh">0x77</span>
+<span class="k">assert</span> <span class="n">xNegativeInt</span> <span class="o">==</span> <span class="o">-</span><span class="mi">119</span>
+</code></pre>
+</div>
+
+<h2 id="decimal-literals">Decimal literals</h2>
+
+<p>The decimal literal types are the same as in Java:</p>
+
+<ul>
+  <li>float</li>
+  <li>double</li>
+  <li>java.lang.BigDecimal</li>
+</ul>
+
+<p>You can create decimal numbers of those types with the following declarations:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// primitive types</span>
+<span class="kt">float</span>  <span class="n">f</span> <span class="o">=</span> <span class="mf">1.234</span>
+<span class="kt">double</span> <span class="n">d</span> <span class="o">=</span> <span class="mf">2.345</span>
+
+<span class="c1">// infinite precision</span>
+<span class="n">BigDecimal</span> <span class="n">bd</span> <span class="o">=</span>  <span class="mf">3.456</span>
+</code></pre>
+</div>
+
+<p>Decimals can use exponents, with the <code class="highlighter-rouge">e</code> or <code class="highlighter-rouge">E</code> exponent letter, followed by an optional sign, and a integral number representing the exponent:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">assert</span> <span class="mi">1</span><span class="n">e3</span>  <span class="o">==</span>  <span class="mi">1</span><span class="n">_000</span><span class="o">.</span><span class="mi">0</span>
+<span class="k">assert</span> <span class="mi">2</span><span class="n">E4</span>  <span class="o">==</span> <span class="mi">20</span><span class="n">_000</span><span class="o">.</span><span class="mi">0</span>
+<span class="k">assert</span> <span class="mi">3</span><span class="n">e</span><span class="o">+</span><span class="mi">1</span> <span class="o">==</span>     <span class="mf">30.0</span>
+<span class="k">assert</span> <span class="mi">4</span><span class="n">E</span><span class="o">-</span><span class="mi">2</span> <span class="o">==</span>      <span class="mf">0.04</span>
+<span class="k">assert</span> <span class="mi">5</span><span class="n">e</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span>      <span class="mf">0.5</span>
+</code></pre>
+</div>
+
+<h2 id="underscore-in-literals">Underscore in literals</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">long</span> <span class="n">creditCardNumber</span> <span class="o">=</span> <span class="mi">1234</span><span class="n">_5678_9012_3456L</span>
+<span class="kt">long</span> <span class="n">socialSecurityNumbers</span> <span class="o">=</span> <span class="mi">999</span><span class="n">_99_9999L</span>
+<span class="kt">double</span> <span class="n">monetaryAmount</span> <span class="o">=</span> <span class="mi">12</span><span class="n">_345_132</span><span class="o">.</span><span class="mi">12</span>
+<span class="kt">long</span> <span class="n">hexBytes</span> <span class="o">=</span> <span class="mi">0</span><span class="n">xFF_EC_DE_5E</span>
+<span class="kt">long</span> <span class="n">hexWords</span> <span class="o">=</span> <span class="mi">0</span><span class="n">xFFEC_DE5E</span>
+<span class="kt">long</span> <span class="n">maxLong</span> <span class="o">=</span> <span class="mh">0x7fff</span><span class="n">_ffff_ffff_ffffL</span>
+<span class="kt">long</span> <span class="n">alsoMaxLong</span> <span class="o">=</span> <span class="mi">9</span><span class="n">_223_372_036_854_775_807L</span>
+<span class="kt">long</span> <span class="n">bytes</span> <span class="o">=</span> <span class="mi">0</span><span class="n">b11010010_01101001_10010100_10010010</span>
+</code></pre>
+</div>
+
+<h2 id="number-type-suffixes">Number type suffixes</h2>
+
+<p>We can force a number (including binary, octals and hexadecimals) to have a specific type by giving a suffix (see table bellow), either uppercase or lowercase.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Suffix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>BigInteger</td>
+      <td><code class="highlighter-rouge">G</code> or <code class="highlighter-rouge">g</code></td>
+    </tr>
+    <tr>
+      <td>Long</td>
+      <td><code class="highlighter-rouge">L</code> or <code class="highlighter-rouge">l</code></td>
+    </tr>
+    <tr>
+      <td>Integer</td>
+      <td><code class="highlighter-rouge">I</code> or <code class="highlighter-rouge">i</code></td>
+    </tr>
+    <tr>
+      <td>BigDecimal</td>
+      <td><code class="highlighter-rouge">G</code> or <code class="highlighter-rouge">g</code></td>
+    </tr>
+    <tr>
+      <td>Double</td>
+      <td><code class="highlighter-rouge">D</code> or <code class="highlighter-rouge">d</code></td>
+    </tr>
+    <tr>
+      <td>Float</td>
+      <td><code class="highlighter-rouge">F</code> or <code class="highlighter-rouge">f</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Examples:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">assert</span> <span class="mi">42</span><span class="n">I</span> <span class="o">==</span> <span class="k">new</span> <span class="n">Integer</span><span class="o">(</span><span class="s1">'42'</span><span class="o">)</span>
+<span class="k">assert</span> <span class="mi">42</span><span class="n">i</span> <span class="o">==</span> <span class="k">new</span> <span class="n">Integer</span><span class="o">(</span><span class="s1">'42'</span><span class="o">)</span> <span class="c1">// lowercase i more readable</span>
+<span class="k">assert</span> <span class="mi">123L</span> <span class="o">==</span> <span class="k">new</span> <span class="n">Long</span><span class="o">(</span><span class="s2">"123"</span><span class="o">)</span> <span class="c1">// uppercase L more readable</span>
+<span class="k">assert</span> <span class="mi">2147483648</span> <span class="o">==</span> <span class="k">new</span> <span class="n">Long</span><span class="o">(</span><span class="s1">'2147483648'</span><span class="o">)</span> <span class="c1">// Long type used, value too large for an Integer</span>
+<span class="k">assert</span> <span class="mi">456</span><span class="n">G</span> <span class="o">==</span> <span class="k">new</span> <span class="n">BigInteger</span><span class="o">(</span><span class="s1">'456'</span><span class="o">)</span>
+<span class="k">assert</span> <span class="mi">456</span><span class="n">g</span> <span class="o">==</span> <span class="k">new</span> <span class="n">BigInteger</span><span class="o">(</span><span class="s1">'456'</span><span class="o">)</span>
+<span class="k">assert</span> <span class="mf">123.45</span> <span class="o">==</span> <span class="k">new</span> <span class="n">BigDecimal</span><span class="o">(</span><span class="s1">'123.45'</span><span class="o">)</span> <span class="c1">// default BigDecimal type used</span>
+<span class="k">assert</span> <span class="mf">1.200065</span><span class="n">D</span> <span class="o">==</span> <span class="k">new</span> <span class="n">Double</span><span class="o">(</span><span class="s1">'1.200065'</span><span class="o">)</span>
+<span class="k">assert</span> <span class="mf">1.234</span><span class="n">F</span> <span class="o">==</span> <span class="k">new</span> <span class="n">Float</span><span class="o">(</span><span class="s1">'1.234'</span><span class="o">)</span>
+<span class="k">assert</span> <span class="mf">1.23E23</span><span class="n">D</span> <span class="o">==</span> <span class="k">new</span> <span class="n">Double</span><span class="o">(</span><span class="s1">'1.23E23'</span><span class="o">)</span>
+<span class="k">assert</span> <span class="mi">0</span><span class="n">b1111L</span><span class="o">.</span><span class="na">class</span> <span class="o">==</span> <span class="n">Long</span> <span class="c1">// binary</span>
+<span class="k">assert</span> <span class="mi">0</span><span class="n">xFFi</span><span class="o">.</span><span class="na">class</span> <span class="o">==</span> <span class="n">Integer</span> <span class="c1">// hexadecimal</span>
+<span class="k">assert</span> <span class="mi">034</span><span class="n">G</span><span class="o">.</span><span class="na">class</span> <span class="o">==</span> <span class="n">BigInteger</span> <span class="c1">// octal</span>
+</code></pre>
+</div>
+
+<h2 id="math-operations">Math operations</h2>
+
+<p>略 …</p>
+
+<h1 id="booleans">Booleans</h1>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">myBooleanVariable</span> <span class="o">=</span> <span class="kc">true</span>
+<span class="kt">boolean</span> <span class="n">untypedBooleanVar</span> <span class="o">=</span> <span class="kc">false</span>
+<span class="n">booleanField</span> <span class="o">=</span> <span class="kc">true</span>
+</code></pre>
+</div>
+
+<h1 id="lists">Lists</h1>
+
+<p>Groovy uses a comma-separated list of values, surrounded by square brackets, to denote lists. Groovy lists are plain JDK <code class="highlighter-rouge">java.util.List</code>, as Groovy doesn’t define its own collection classes. The concrete list implementation used when defining list literals are <code class="highlighter-rouge">java.util.ArrayList</code> by default, unless you decide to specify otherwise, as we shall see later on.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">numbers</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">]</span>
+
+<span class="k">assert</span> <span class="n">numbers</span> <span class="k">instanceof</span> <span class="n">List</span>
+<span class="k">assert</span> <span class="n">numbers</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">3</span>
+</code></pre>
+</div>
+
+<p>can also create lists containing values of heterogeneous types:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">heterogeneous</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="s2">"a"</span><span class="o">,</span> <span class="kc">true</span><span class="o">]</span>
+</code></pre>
+</div>
+
+<p>We mentioned that by default, list literals are actually instances of <code class="highlighter-rouge">java.util.ArrayList</code>, but it is possible to use a different backing type for our lists, thanks to using type coercion with the <code class="highlighter-rouge">as</code> operator, or with explicit type declaration for your variables:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">arrayList</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">]</span>
+<span class="k">assert</span> <span class="n">arrayList</span> <span class="k">instanceof</span> <span class="n">java</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">ArrayList</span>
+
+<span class="kt">def</span> <span class="n">linkedList</span> <span class="o">=</span> <span class="o">[</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">]</span> <span class="k">as</span> <span class="n">LinkedList</span>
+<span class="k">assert</span> <span class="n">linkedList</span> <span class="k">instanceof</span> <span class="n">java</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">LinkedList</span>
+
+<span class="n">LinkedList</span> <span class="n">otherLinked</span> <span class="o">=</span> <span class="o">[</span><span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">5</span><span class="o">]</span>
+<span class="k">assert</span> <span class="n">otherLinked</span> <span class="k">instanceof</span> <span class="n">java</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">LinkedList</span>
+</code></pre>
+</div>
+
+<p>You can access elements of the list with the <code class="highlighter-rouge">[]</code> subscript operator (both for reading and setting values) with positive indices or negative indices to access elements from the end of the list, as well as with ranges, and use the « leftShift operator to append elements to a list:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">letters</span> <span class="o">=</span> <span class="o">[</span><span class="s1">'a'</span><span class="o">,</span> <span class="s1">'b'</span><span class="o">,</span> <span class="s1">'c'</span><span class="o">,</span> <span class="s1">'d'</span><span class="o">]</span>
+
+<span class="k">assert</span> <span class="n">letters</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'a'</span>
+<span class="k">assert</span> <span class="n">letters</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'b'</span>
+
+<span class="k">assert</span> <span class="n">letters</span><span class="o">[-</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'d'</span>
+<span class="k">assert</span> <span class="n">letters</span><span class="o">[-</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'c'</span>
+
+<span class="n">letters</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span> <span class="o">=</span> <span class="s1">'C'</span>
+<span class="k">assert</span> <span class="n">letters</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'C'</span>
+
+<span class="n">letters</span> <span class="o">&lt;&lt;</span> <span class="s1">'e'</span>
+<span class="k">assert</span> <span class="n">letters</span><span class="o">[</span> <span class="mi">4</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'e'</span>
+<span class="k">assert</span> <span class="n">letters</span><span class="o">[-</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'e'</span>
+
+<span class="k">assert</span> <span class="n">letters</span><span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">3</span><span class="o">]</span> <span class="o">==</span> <span class="o">[</span><span class="s1">'b'</span><span class="o">,</span> <span class="s1">'d'</span><span class="o">]</span>
+<span class="k">assert</span> <span class="n">letters</span><span class="o">[</span><span class="mi">2</span><span class="o">..</span><span class="mi">4</span><span class="o">]</span> <span class="o">==</span> <span class="o">[</span><span class="s1">'C'</span><span class="o">,</span> <span class="s1">'d'</span><span class="o">,</span> <span class="s1">'e'</span><span class="o">]</span>
+</code></pre>
+</div>
+
+<p>As lists can be heterogeneous in nature, lists can also contain other lists to create multi-dimensional lists:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">multi</span> <span class="o">=</span> <span class="o">[[</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">],</span> <span class="o">[</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">]]</span>
+<span class="k">assert</span> <span class="n">multi</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="mi">2</span>
+</code></pre>
+</div>
+
+<h1 id="arrays">Arrays</h1>
+
+<p>Groovy reuses the list notation for arrays, but to make such literals arrays, you need to explicitely define the type of the array through coercion or type declaration.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">String</span><span class="o">[]</span> <span class="n">arrStr</span> <span class="o">=</span> <span class="o">[</span><span class="s1">'Ananas'</span><span class="o">,</span> <span class="s1">'Banana'</span><span class="o">,</span> <span class="s1">'Kiwi'</span><span class="o">]</span>
+
+<span class="k">assert</span> <span class="n">arrStr</span> <span class="k">instanceof</span> <span class="n">String</span><span class="o">[]</span>
+<span class="k">assert</span> <span class="o">!(</span><span class="n">arrStr</span> <span class="k">instanceof</span> <span class="n">List</span><span class="o">)</span>
+
+<span class="kt">def</span> <span class="n">numArr</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">]</span> <span class="k">as</span> <span class="kt">int</span><span class="o">[]</span>
+
+<span class="k">assert</span> <span class="n">numArr</span> <span class="k">instanceof</span> <span class="kt">int</span><span class="o">[]</span>
+<span class="k">assert</span> <span class="n">numArr</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">3</span>
+</code></pre>
+</div>
+
+<p>You can also create multi-dimensional arrays:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">matrix3</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Integer</span><span class="o">[</span><span class="mi">3</span><span class="o">][</span><span class="mi">3</span><span class="o">]</span>
+<span class="k">assert</span> <span class="n">matrix3</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">3</span>
+
+<span class="n">Integer</span><span class="o">[][]</span> <span class="n">matrix2</span>
+<span class="n">matrix2</span> <span class="o">=</span> <span class="o">[[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">],</span> <span class="o">[</span><span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">]]</span>
+<span class="k">assert</span> <span class="n">matrix2</span> <span class="k">instanceof</span> <span class="n">Integer</span><span class="o">[][]</span>
+</code></pre>
+</div>
+
+<p>Access to elements of an array follows the same notation as for lists:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">String</span><span class="o">[]</span> <span class="n">names</span> <span class="o">=</span> <span class="o">[</span><span class="s1">'Cédric'</span><span class="o">,</span> <span class="s1">'Guillaume'</span><span class="o">,</span> <span class="s1">'Jochen'</span><span class="o">,</span> <span class="s1">'Paul'</span><span class="o">]</span>
+<span class="k">assert</span> <span class="n">names</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'Cédric'</span>
+
+<span class="n">names</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span> <span class="o">=</span> <span class="s1">'Blackdrag'</span>
+<span class="k">assert</span> <span class="n">names</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'Blackdrag'</span>
+</code></pre>
+</div>
+
+<h1 id="maps">Maps</h1>
+
+<p>Sometimes called dictionaries or associative arrays in other languages, Groovy features maps. Maps associate keys to values, separating keys and values with colons, and each key/value pairs with commas, and the whole keys and values surrounded by square brackets.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">colors</span> <span class="o">=</span> <span class="o">[</span><span class="nl">red:</span> <span class="s1">'#FF0000'</span><span class="o">,</span> <span class="nl">green:</span> <span class="s1">'#00FF00'</span><span class="o">,</span> <span class="nl">blue:</span> <span class="s1">'#0000FF'</span><span class="o">]</span>
+
+<span class="k">assert</span> <span class="n">colors</span><span class="o">[</span><span class="s1">'red'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'#FF0000'</span>
+<span class="k">assert</span> <span class="n">colors</span><span class="o">.</span><span class="na">green</span>  <span class="o">==</span> <span class="s1">'#00FF00'</span>
+
+<span class="n">colors</span><span class="o">[</span><span class="s1">'pink'</span><span class="o">]</span> <span class="o">=</span> <span class="s1">'#FF00FF'</span>
+<span class="n">colors</span><span class="o">.</span><span class="na">yellow</span>  <span class="o">=</span> <span class="s1">'#FFFF00'</span>
+
+<span class="k">assert</span> <span class="n">colors</span><span class="o">.</span><span class="na">pink</span> <span class="o">==</span> <span class="s1">'#FF00FF'</span>
+<span class="k">assert</span> <span class="n">colors</span><span class="o">[</span><span class="s1">'yellow'</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'#FFFF00'</span>
+
+<span class="k">assert</span> <span class="n">colors</span> <span class="k">instanceof</span> <span class="n">java</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">LinkedHashMap</span>
+</code></pre>
+</div>
+
+<p>If you try to access a key which is not present in the map:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">assert</span> <span class="n">colors</span><span class="o">.</span><span class="na">unknown</span> <span class="o">==</span> <span class="kc">null</span>
+</code></pre>
+</div>
+
+<p>You will retrieve a <code class="highlighter-rouge">null</code> result.</p>
+
+<p>In the examples above, we used string keys, but you can also use values of other types as keys:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">numbers</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="o">:</span> <span class="s1">'one'</span><span class="o">,</span> <span class="mi">2</span><span class="o">:</span> <span class="s1">'two'</span><span class="o">]</span>
+
+<span class="k">assert</span> <span class="n">numbers</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s1">'one'</span>
+</code></pre>
+</div>
+
+<p>Here, we used numbers as keys, as numbers can unambiguously be recognized as numbers, so Groovy will not create a string key like in our previous examples. But consider the case you want to pass a variable in lieu of the key, to have the value of that variable become the key:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kt">def</span> <span class="n">key</span> <span class="o">=</span> <span class="s1">'name'</span>
+<span class="kt">def</span> <span class="n">person</span> <span class="o">=</span> <span class="o">[</span><span class="nl">key:</span> <span class="s1">'Guillaume'</span><span class="o">]</span>
+
+<span class="k">assert</span> <span class="o">!</span><span class="n">person</span><span class="o">.</span><span class="na">containsKey</span><span class="o">(</span><span class="s1">'name'</span><span class="o">)</span>
+<span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="na">containsKey</span><span class="o">(</span><span class="s1">'key'</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>When you need to pass variable values as keys in your map definitions, you must surround the variable or expression with parentheses:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">person</span> <span class="o">=</span> <span class="o">[(</span><span class="n">key</span><span class="o">):</span> <span class="s1">'Guillaume'</span><span class="o">]</span>
+
+<span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="na">containsKey</span><span class="o">(</span><span class="s1">'name'</span><span class="o">)</span>
+<span class="k">assert</span> <span class="o">!</span><span class="n">person</span><span class="o">.</span><span class="na">containsKey</span><span class="o">(</span><span class="s1">'key'</span><span class="o">)</span>
+</code></pre>
+</div>
+</div>
+  </div>
+
+  <footer></footer>
+
+</article>
+<script src="/assets/js/anchor.min.js"></script>
+<script src="/assets/js/jquery.min.js"></script>
+<!--
+<script src="/assets/js/clipboard.min.js"></script>
+-->
+
+<script>
+  anchors.options = {
+    placement: 'left'
+  };
+  anchors.add('.page-content h1, .page-content h2, .page-content h3, .page-content h4, .page-content h5, .page-content h6');
+
+  /*
+  $('pre.highlight').after($('<button class="btn-copy">Copy</button>'));
+  var clipboard = new Clipboard('.btn-copy', {
+    text: function(trigger) {
+      return $(trigger).prev().text();
+    }
+  });
+  */
+
+  (function() {
+    var $toc = $('#toc'),
+      $nav = $('<ul>'),
+      track = [];
+
+    function getParentNav(level) {
+      var i = track.length,
+        $el = $('<li>');
+      if (!track.length) {
+        return $el.appendTo($nav);
+      }
+      while (i--) {
+        var last = track[i];
+        if (level === last.level) {
+          return $el.appendTo(last.$el.closest('ul'));
+        }
+        if (level - last.level == 1) {
+          return $el.appendTo($('<ul>').appendTo(last.$el));
+        }
+      }
+    }
+
+    function generateTableOfContents(els) {
+      var test, href;
+      for (var i = 0; i < els.length; i++) {
+        test = els[i].textContent;
+        href = els[i].querySelector('.anchorjs-link').getAttribute('href');
+        addNavItem(href, test, els[i].tagName.slice(1));
+      }
+    }
+
+    function addNavItem(href, text, level) {
+      var $a = $('<a href="' + href + '">' + text + '</a>'),
+        $el = getParentNav(level);
+      if (!$el) {
+        return;
+      }
+      $el.append($a);
+      track.push({
+        level: level,
+        $el: $el
+      });
+    }
+
+    generateTableOfContents(anchors.elements);
+    $nav.appendTo($toc);
+  })();
+
+  $(document.body).on('keydown', function(e) {
+    if (e.altKey && e.keyCode == 36) {
+      location.href = '/';
+      e.preventDefault();
+    }
+  });
+</script>
+
+
+  </body>
+</html>

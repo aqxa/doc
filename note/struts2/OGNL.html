@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Apache OGNL</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+  <body>
+    <article class="page">
+  <header class="page-header">
+    <div class="container">
+      <h1 class="page-title">Apache OGNL</h1>
+      <p class="page-tags">
+        
+        <span class="tag">Java</span>
+        
+        <span class="tag">OGNL</span>
+        
+      </p>
+      <p class="page-meta">
+        <time datetime="1970-01-01T00:00:00+08:00">Jan 1, 1970</time>
+      </p>
+    </div>
+  </header>
+
+  
+  <div class="container">
+    <h1>Table Of Contents</h1>
+    <div id="toc"></div>
+  </div>
+  
+
+  <div class="page-content">
+    <div class="container"><h1 id="section">参考链接</h1>
+
+<ul>
+  <li><a href="https://struts.apache.org/docs/ognl-basics.html">https://struts.apache.org/docs/ognl-basics.html</a></li>
+  <li><a href="https://struts.apache.org/docs/ognl.html">https://struts.apache.org/docs/ognl.html</a></li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>              |
+              |--application
+              |
+              |--session
+context map---|
+              |--value stack(root)
+              |
+              |--action (the current action)
+              |
+              |--request
+              |
+              |--parameters
+              |
+              |--attr (searches page, request, session, then application scopes)
+              |
+</code></pre>
+</div>
+
+<h1 id="application">application</h1>
+
+<h2 id="section-1">存</h2>
+
+<p>通过 <code class="highlighter-rouge">ActionContext</code>：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">ActionContext</span> <span class="n">context</span> <span class="o">=</span> <span class="n">ActionContext</span><span class="o">.</span><span class="na">getContext</span><span class="o">();</span>
+<span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">application</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getApplication</span><span class="o">();</span>
+<span class="n">application</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="s">"ActionContext - Application"</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<p>通过 <code class="highlighter-rouge">ServletActionContext</code>：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">ServletContext</span> <span class="n">application</span> <span class="o">=</span> <span class="n">ServletActionContext</span><span class="o">.</span><span class="na">getServletContext</span><span class="o">();</span>
+<span class="n">application</span><span class="o">.</span><span class="na">setAttribute</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="s">"ServletActionContext - Application"</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<h2 id="section-2">取</h2>
+
+<p>通过 EL 表达式：</p>
+
+<pre><code class="language-jsp">${ name }
+${ applicationScope.name }
+${ application.name }
+</code></pre>
+
+<p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
+
+<pre><code class="language-jsp">&lt;s:property value="#application.name" /&gt;
+&lt;s:property value="#attr.name" /&gt;
+</code></pre>
+
+<h1 id="session">session</h1>
+
+<h2 id="section-3">存</h2>
+
+<p>通过 <code class="highlighter-rouge">ActionContext</code>：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">ActionContext</span> <span class="n">context</span> <span class="o">=</span> <span class="n">ActionContext</span><span class="o">.</span><span class="na">getContext</span><span class="o">();</span>
+<span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">session</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getSession</span><span class="o">();</span>
+<span class="n">session</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="s">"ActionContext - Session"</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<p>通过 <code class="highlighter-rouge">ServletActionContext</code>：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">HttpSession</span> <span class="n">session</span> <span class="o">=</span> <span class="n">ServletActionContext</span><span class="o">.</span><span class="na">getRequest</span><span class="o">().</span><span class="na">getSession</span><span class="o">();</span>
+<span class="n">session</span><span class="o">.</span><span class="na">setAttribute</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="s">"ServletActionContext - Session"</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<h2 id="section-4">取</h2>
+
+<p>通过 EL 表达式：</p>
+
+<pre><code class="language-jsp">${ name }
+${ sessionScope.name }
+${ session.name }
+</code></pre>
+
+<p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
+
+<pre><code class="language-jsp">&lt;s:property value="#session.name" /&gt;
+&lt;s:property value="#attr.name" /&gt;
+</code></pre>
+
+<h1 id="value-stackroot">value stack(root)</h1>
+
+<h2 id="section-5">存</h2>
+
+<p>通过 <code class="highlighter-rouge">ValueStack</code> 的 <code class="highlighter-rouge">push()</code> 方法：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">User</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">();</span>
+<span class="n">user</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"User.name"</span><span class="o">);</span>
+
+<span class="n">ValueStack</span> <span class="n">valueStack</span> <span class="o">=</span> <span class="n">ActionContext</span><span class="o">.</span><span class="na">getContext</span><span class="o">().</span><span class="na">getValueStack</span><span class="o">();</span>
+<span class="n">valueStack</span><span class="o">.</span><span class="na">push</span><span class="o">(</span><span class="n">user</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<p>通过 <code class="highlighter-rouge">ValueStack</code> 的 <code class="highlighter-rouge">set()</code> 方法：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">ValueStack</span> <span class="n">valueStack</span> <span class="o">=</span> <span class="n">ActionContext</span><span class="o">.</span><span class="na">getContext</span><span class="o">().</span><span class="na">getValueStack</span><span class="o">();</span>
+<span class="n">valueStack</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="s">"Map.name"</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<h2 id="section-6">取</h2>
+
+<p>通过 EL 表达式：</p>
+
+<pre><code class="language-jsp">${ name }
+${ requestScope.name }
+${ request.name }
+</code></pre>
+
+<p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
+
+<pre><code class="language-jsp">&lt;s:property value="#request.name"/&gt;
+&lt;s:property value="#attr.name"/&gt;
+</code></pre>
+
+<h1 id="action-the-current-action">action (the current action)</h1>
+
+<h2 id="section-7">存</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloAction</span> <span class="kd">extends</span> <span class="n">ActionSupport</span><span class="o">{</span>
+
+	<span class="kd">public</span> <span class="n">String</span> <span class="n">getName</span><span class="o">(){</span>
+		<span class="k">return</span> <span class="s">"Action - Property"</span><span class="o">;</span>
+	<span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h2 id="section-8">取</h2>
+
+<p>通过 EL 表达式：</p>
+
+<pre><code class="language-jsp">${ name }
+${ sessionScope.name }
+${ session.name }
+</code></pre>
+
+<p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
+
+<pre><code class="language-jsp">&lt;s:property value="name"/&gt;
+&lt;s:property value="#action.name" /&gt;
+&lt;s:property value="#attr.name" /&gt;
+</code></pre>
+
+<h1 id="request">request</h1>
+
+<h2 id="section-9">存</h2>
+
+<p>通过 <code class="highlighter-rouge">ServletActionContext</code>：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">HttpServletRequest</span> <span class="n">request</span> <span class="o">=</span> <span class="n">ServletActionContext</span><span class="o">.</span><span class="na">getRequest</span><span class="o">();</span>
+<span class="n">request</span><span class="o">.</span><span class="na">setAttribute</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="s">"ServletActionContext - Request"</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<h2 id="section-10">取</h2>
+
+<p>通过 EL 表达式：</p>
+
+<pre><code class="language-jsp">${ name }
+${ requestScope.name }
+${ request.name }
+</code></pre>
+
+<p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
+
+<pre><code class="language-jsp">&lt;s:property value="#request.name" /&gt;
+&lt;s:property value="#attr.name" /&gt;
+</code></pre>
+
+<h1 id="parameters">parameters</h1>
+
+<h2 id="section-11">存</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>http://localhost:9999/hello?name=parameter
+</code></pre>
+</div>
+
+<h2 id="section-12">取</h2>
+
+<p>通过 EL 表达式：</p>
+
+<pre><code class="language-jsp">${ param.name }
+${ paramValues.name[0] }
+</code></pre>
+
+<p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
+
+<pre><code class="language-jsp">&lt;s:property value="#parameters.name" /&gt;
+</code></pre>
+
+<h1 id="attr-searches-page-request-session-then-application-scopes">attr (searches page, request, session, then application scopes)</h1>
+
+<h2 id="section-13">存</h2>
+
+<p>这个是一个作用域，而是相当于一个访问链。</p>
+
+<h2 id="section-14">取</h2>
+
+<p>通过 EL 表达式：</p>
+
+<pre><code class="language-jsp">${ name }
+</code></pre>
+
+<p>通过 <code class="highlighter-rouge">&lt;s:property&gt;</code>：</p>
+
+<pre><code class="language-jsp">&lt;s:property value="#attr.name" /&gt;
+</code></pre>
+</div>
+  </div>
+
+  <footer></footer>
+
+</article>
+<script src="/assets/js/anchor.min.js"></script>
+<script src="/assets/js/jquery.min.js"></script>
+<!--
+<script src="/assets/js/clipboard.min.js"></script>
+-->
+
+<script>
+  anchors.options = {
+    placement: 'left'
+  };
+  anchors.add('.page-content h1, .page-content h2, .page-content h3, .page-content h4, .page-content h5, .page-content h6');
+
+  /*
+  $('pre.highlight').after($('<button class="btn-copy">Copy</button>'));
+  var clipboard = new Clipboard('.btn-copy', {
+    text: function(trigger) {
+      return $(trigger).prev().text();
+    }
+  });
+  */
+
+  (function() {
+    var $toc = $('#toc'),
+      $nav = $('<ul>'),
+      track = [];
+
+    function getParentNav(level) {
+      var i = track.length,
+        $el = $('<li>');
+      if (!track.length) {
+        return $el.appendTo($nav);
+      }
+      while (i--) {
+        var last = track[i];
+        if (level === last.level) {
+          return $el.appendTo(last.$el.closest('ul'));
+        }
+        if (level - last.level == 1) {
+          return $el.appendTo($('<ul>').appendTo(last.$el));
+        }
+      }
+    }
+
+    function generateTableOfContents(els) {
+      var test, href;
+      for (var i = 0; i < els.length; i++) {
+        test = els[i].textContent;
+        href = els[i].querySelector('.anchorjs-link').getAttribute('href');
+        addNavItem(href, test, els[i].tagName.slice(1));
+      }
+    }
+
+    function addNavItem(href, text, level) {
+      var $a = $('<a href="' + href + '">' + text + '</a>'),
+        $el = getParentNav(level);
+      if (!$el) {
+        return;
+      }
+      $el.append($a);
+      track.push({
+        level: level,
+        $el: $el
+      });
+    }
+
+    generateTableOfContents(anchors.elements);
+    $nav.appendTo($toc);
+  })();
+
+  $(document.body).on('keydown', function(e) {
+    if (e.altKey && e.keyCode == 36) {
+      location.href = '/';
+      e.preventDefault();
+    }
+  });
+</script>
+
+
+  </body>
+</html>

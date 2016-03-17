@@ -1,0 +1,2567 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Browserify Handbook</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+  <body>
+    <article class="page">
+  <header class="page-header">
+    <div class="container">
+      <h1 class="page-title">Browserify Handbook</h1>
+      <p class="page-tags">
+        
+        <span class="tag">Front End</span>
+        
+        <span class="tag">Build Tool</span>
+        
+        <span class="tag">Browserify</span>
+        
+        <span class="tag">Handbook</span>
+        
+      </p>
+      <p class="page-meta">
+        <time datetime="1970-01-01T00:00:00+08:00">Jan 1, 1970</time>
+      </p>
+    </div>
+  </header>
+
+  
+  <div class="container">
+    <h1>Table Of Contents</h1>
+    <div id="toc"></div>
+  </div>
+  
+
+  <div class="page-content">
+    <div class="container"><p>https://github.com/substack/browserify-handbook</p>
+
+<h1 id="introduction">introduction</h1>
+
+<p>This document covers how to use <a href="http://browserify.org">browserify</a> to build<br />
+modular applications.</p>
+
+<p><a href="http://creativecommons.org/licenses/by/3.0/"><img src="http://i.creativecommons.org/l/by/3.0/80x15.png" alt="cc-by-3.0" /></a></p>
+
+<p>browserify is a tool for compiling<br />
+<a href="http://nodejs.org/docs/latest/api/modules.html">node-flavored</a> commonjs modules<br />
+for the browser.</p>
+
+<p>You can use browserify to organize your code and use third-party libraries even<br />
+if you don’t use <a href="http://nodejs.org">node</a> itself in any other capacity except<br />
+for bundling and installing packages with npm.</p>
+
+<p>The module system that browserify uses is the same as node, so<br />
+packages published to <a href="https://npmjs.org">npm</a> that were originally intended for<br />
+use in node but not browsers will work just fine in the browser too.</p>
+
+<p>Increasingly, people are publishing modules to npm which are intentionally<br />
+designed to work in both node and in the browser using browserify and many<br />
+packages on npm are intended for use in just the browser.<br />
+<a href="http://maxogden.com/node-packaged-modules.html">npm is for all javascript</a>,<br />
+front or backend alike.</p>
+
+<h1 id="node-packaged-manuscript">node packaged manuscript</h1>
+
+<p>You can install this handbook with npm, appropriately enough. Just do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>npm install -g browserify-handbook
+</code></pre>
+</div>
+
+<p>Now you will have a <code class="highlighter-rouge">browserify-handbook</code> command that will open this readme<br />
+file in your <code class="highlighter-rouge">$PAGER</code>. Otherwise, you may continue reading this document as you<br />
+are presently doing.</p>
+
+<h1 id="node-packaged-modules">node packaged modules</h1>
+
+<p>Before we can dive too deeply into how to use browserify and how it works, it is<br />
+important to first understand how the<br />
+<a href="http://nodejs.org/docs/latest/api/modules.html">node-flavored version</a><br />
+of the commonjs module system works.</p>
+
+<h2 id="require">require</h2>
+
+<p>In node, there is a <code class="highlighter-rouge">require()</code> function for loading code from other files.</p>
+
+<p>If you install a module with <a href="https://npmjs.org">npm</a>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>npm install uniq
+</code></pre>
+</div>
+
+<p>Then in a file <code class="highlighter-rouge">nums.js</code> we can <code class="highlighter-rouge">require('uniq')</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>var uniq = require('uniq');
+var nums = [ 5, 2, 1, 3, 2, 5, 4, 2, 0, 1 ];
+console.log(uniq(nums));
+</code></pre>
+</div>
+
+<p>The output of this program when run with node is:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ node nums.js
+[ 0, 1, 2, 3, 4, 5 ]
+</code></pre>
+</div>
+
+<p>You can require relative files by requiring a string that starts with a <code class="highlighter-rouge">.</code>. For<br />
+example, to load a file <code class="highlighter-rouge">foo.js</code> from <code class="highlighter-rouge">main.js</code>, in <code class="highlighter-rouge">main.js</code> you can do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">foo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./foo.js'</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">foo</span><span class="p">(</span><span class="mi">4</span><span class="p">));</span>
+</code></pre>
+</div>
+
+<p>If <code class="highlighter-rouge">foo.js</code> was in the parent directory, you could use <code class="highlighter-rouge">../foo.js</code> instead:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">foo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'../foo.js'</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">foo</span><span class="p">(</span><span class="mi">4</span><span class="p">));</span>
+</code></pre>
+</div>
+
+<p>or likewise for any other kind of relative path. Relative paths are always<br />
+resolved with respect to the invoking file’s location.</p>
+
+<p>Note that <code class="highlighter-rouge">require()</code> returned a function and we assigned that return value to a<br />
+variable called <code class="highlighter-rouge">uniq</code>. We could have picked any other name and it would have<br />
+worked the same. <code class="highlighter-rouge">require()</code> returns the exports of the module name that you<br />
+specify.</p>
+
+<p>How <code class="highlighter-rouge">require()</code> works is unlike many other module systems where imports are akin<br />
+to statements that expose themselves as globals or file-local lexicals with<br />
+names declared in the module itself outside of your control. Under the node<br />
+style of code import with <code class="highlighter-rouge">require()</code>, someone reading your program can easily<br />
+tell where each piece of functionality came from. This approach scales much<br />
+better as the number of modules in an application grows.</p>
+
+<h2 id="exports">exports</h2>
+
+<p>To export a single thing from a file so that other files may import it, assign<br />
+over the value at <code class="highlighter-rouge">module.exports</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">n</span> <span class="o">*</span> <span class="mi">111</span>
+<span class="p">};</span>
+</code></pre>
+</div>
+
+<p>Now when some module <code class="highlighter-rouge">main.js</code> loads your <code class="highlighter-rouge">foo.js</code>, the return value of<br />
+<code class="highlighter-rouge">require('./foo.js')</code> will be the exported function:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">foo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./foo.js'</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">foo</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span>
+</code></pre>
+</div>
+
+<p>This program will print:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>555
+</code></pre>
+</div>
+
+<p>You can export any kind of value with <code class="highlighter-rouge">module.exports</code>, not just functions.</p>
+
+<p>For example, this is perfectly fine:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="mi">555</span>
+</code></pre>
+</div>
+
+<p>and so is this:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">numbers</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="nx">numbers</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">numbers</span><span class="p">;</span>
+</code></pre>
+</div>
+
+<p>There is another form of doing exports specifically for exporting items onto an<br />
+object. Here, <code class="highlighter-rouge">exports</code> is used instead of <code class="highlighter-rouge">module.exports</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">exports</span><span class="p">.</span><span class="nx">beep</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">n</span> <span class="o">*</span> <span class="mi">1000</span> <span class="p">}</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">boop</span> <span class="o">=</span> <span class="mi">555</span>
+</code></pre>
+</div>
+
+<p>This program is the same as:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">beep</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">n</span> <span class="o">*</span> <span class="mi">1000</span> <span class="p">}</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">boop</span> <span class="o">=</span> <span class="mi">555</span>
+</code></pre>
+</div>
+
+<p>because <code class="highlighter-rouge">module.exports</code> is the same as <code class="highlighter-rouge">exports</code> and is initially set to an<br />
+empty object.</p>
+
+<p>Note however that you can’t do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// this doesn't work</span>
+<span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">n</span> <span class="o">*</span> <span class="mi">1000</span> <span class="p">}</span>
+</code></pre>
+</div>
+
+<p>because the export value lives on the <code class="highlighter-rouge">module</code> object, and so assigning a new<br />
+value for <code class="highlighter-rouge">exports</code> instead of <code class="highlighter-rouge">module.exports</code> masks the original reference.</p>
+
+<p>Instead if you are going to export a single item, always do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// instead</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">n</span> <span class="o">*</span> <span class="mi">1000</span> <span class="p">}</span>
+</code></pre>
+</div>
+
+<p>If you’re still confused, try to understand how modules work in<br />
+the background:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">module</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">exports</span><span class="p">:</span> <span class="p">{}</span>
+<span class="p">};</span>
+
+<span class="c1">// If you require a module, it's basically wrapped in a function</span>
+<span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">module</span><span class="p">,</span> <span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">n</span> <span class="o">*</span> <span class="mi">1000</span> <span class="p">};</span>
+<span class="p">}(</span><span class="nx">module</span><span class="p">,</span> <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">))</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">);</span> <span class="c1">// it's still an empty object :(</span>
+</code></pre>
+</div>
+
+<p>Most of the time, you will want to export a single function or constructor with<br />
+<code class="highlighter-rouge">module.exports</code> because it’s usually best for a module to do one thing.</p>
+
+<p>The <code class="highlighter-rouge">exports</code> feature was originally the primary way of exporting functionality<br />
+and <code class="highlighter-rouge">module.exports</code> was an afterthought, but <code class="highlighter-rouge">module.exports</code> proved to be much<br />
+more useful in practice at being more direct, clear, and avoiding duplication.</p>
+
+<p>In the early days, this style used to be much more common:</p>
+
+<p>foo.js:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">exports</span><span class="p">.</span><span class="nx">foo</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">n</span> <span class="o">*</span> <span class="mi">111</span> <span class="p">}</span>
+</code></pre>
+</div>
+
+<p>main.js:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">foo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./foo.js'</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">foo</span><span class="p">.</span><span class="nx">foo</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span>
+</code></pre>
+</div>
+
+<p>but note that the <code class="highlighter-rouge">foo.foo</code> is a bit superfluous. Using <code class="highlighter-rouge">module.exports</code> it<br />
+becomes more clear:</p>
+
+<p>foo.js:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">n</span> <span class="o">*</span> <span class="mi">111</span> <span class="p">}</span>
+</code></pre>
+</div>
+
+<p>main.js:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">foo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./foo.js'</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">foo</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span>
+</code></pre>
+</div>
+
+<h2 id="bundling-for-the-browser">bundling for the browser</h2>
+
+<p>To run a module in node, you’ve got to start from somewhere.</p>
+
+<p>In node you pass a file to the <code class="highlighter-rouge">node</code> command to run a file:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ node robot.js
+beep boop
+</code></pre>
+</div>
+
+<p>In browserify, you do this same thing, but instead of running the file, you<br />
+generate a stream of concatenated javascript files on stdout that you can write<br />
+to a file with the <code class="highlighter-rouge">&gt;</code> operator:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify robot.js &gt; bundle.js
+</code></pre>
+</div>
+
+<p>Now <code class="highlighter-rouge">bundle.js</code> contains all the javascript that <code class="highlighter-rouge">robot.js</code> needs to work.<br />
+Just plop it into a single script tag in some html:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"bundle.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre>
+</div>
+
+<p>Bonus: if you put your script tag right before the <code class="highlighter-rouge">&lt;/body&gt;</code>, you can use all of<br />
+the dom elements on the page without waiting for a dom onready event.</p>
+
+<p>There are many more things you can do with bundling. Check out the bundling<br />
+section elsewhere in this document.</p>
+
+<h2 id="how-browserify-works">how browserify works</h2>
+
+<p>Browserify starts at the entry point files that you give it and searches for any<br />
+<code class="highlighter-rouge">require()</code> calls it finds using<br />
+<a href="http://npmjs.org/package/detective">static analysis</a><br />
+of the source code’s<br />
+<a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract syntax tree</a>.</p>
+
+<p>For every <code class="highlighter-rouge">require()</code> call with a string in it, browserify resolves those module<br />
+strings to file paths and then searches those file paths for <code class="highlighter-rouge">require()</code> calls<br />
+recursively until the entire dependency graph is visited.</p>
+
+<p>Each file is concatenated into a single javascript file with a minimal<br />
+<code class="highlighter-rouge">require()</code> definition that maps the statically-resolved names to internal IDs.</p>
+
+<p>This means that the bundle you generate is completely self-contained and has<br />
+everything your application needs to work with a pretty negligible overhead.</p>
+
+<p>For more details about how browserify works, check out the compiler pipeline<br />
+section of this document.</p>
+
+<h2 id="how-nodemodules-works">how node_modules works</h2>
+
+<p>node has a clever algorithm for resolving modules that is unique among rival<br />
+platforms.</p>
+
+<p>Instead of resolving packages from an array of system search paths like how<br />
+<code class="highlighter-rouge">$PATH</code> works on the command line, node’s mechanism is local by default.</p>
+
+<p>If you <code class="highlighter-rouge">require('./foo.js')</code> from <code class="highlighter-rouge">/beep/boop/bar.js</code>, node will<br />
+look for <code class="highlighter-rouge">./foo.js</code> in <code class="highlighter-rouge">/beep/boop/foo.js</code>. Paths that start with a <code class="highlighter-rouge">./</code> or<br />
+<code class="highlighter-rouge">../</code> are always local to the file that calls <code class="highlighter-rouge">require()</code>.</p>
+
+<p>If however you require a non-relative name such as <code class="highlighter-rouge">require('xyz')</code> from<br />
+<code class="highlighter-rouge">/beep/boop/foo.js</code>, node searches these paths in order, stopping at the first<br />
+match and raising an error if nothing is found:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>/beep/boop/node_modules/xyz
+/beep/node_modules/xyz
+/node_modules/xyz
+</code></pre>
+</div>
+
+<p>For each <code class="highlighter-rouge">xyz</code> directory that exists, node will first look for a<br />
+<code class="highlighter-rouge">xyz/package.json</code> to see if a <code class="highlighter-rouge">"main"</code> field exists. The <code class="highlighter-rouge">"main"</code> field defines<br />
+which file should take charge if you <code class="highlighter-rouge">require()</code> the directory path.</p>
+
+<p>For example, if <code class="highlighter-rouge">/beep/node_modules/xyz</code> is the first match and<br />
+<code class="highlighter-rouge">/beep/node_modules/xyz/package.json</code> has:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xyz"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.2.3"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"main"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lib/abc.js"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>then the exports from <code class="highlighter-rouge">/beep/node_modules/xyz/lib/abc.js</code> will be returned by<br />
+<code class="highlighter-rouge">require('xyz')</code>.</p>
+
+<p>If there is no <code class="highlighter-rouge">package.json</code> or no <code class="highlighter-rouge">"main"</code> field, <code class="highlighter-rouge">index.js</code> is assumed:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>/beep/node_modules/xyz/index.js
+</code></pre>
+</div>
+
+<p>If you need to, you can reach into a package to pick out a particular file. For<br />
+example, to load the <code class="highlighter-rouge">lib/clone.js</code> file from the <code class="highlighter-rouge">dat</code> package, just do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>var clone = require('dat/lib/clone.js')
+</code></pre>
+</div>
+
+<p>The recursive node_modules resolution will find the first <code class="highlighter-rouge">dat</code> package up the<br />
+directory hierarchy, then the <code class="highlighter-rouge">lib/clone.js</code> file will be resolved from there.<br />
+This <code class="highlighter-rouge">require('dat/lib/clone.js')</code> approach will work from any location where<br />
+you can <code class="highlighter-rouge">require('dat')</code>.</p>
+
+<p>node also has a mechanism for searching an array of paths, but this mechanism is<br />
+deprecated and you should be using <code class="highlighter-rouge">node_modules/</code> unless you have a very good<br />
+reason not to.</p>
+
+<p>The great thing about node’s algorithm and how npm installs packages is that you<br />
+can never have a version conflict, unlike most every other platform. npm<br />
+installs the dependencies of each package into <code class="highlighter-rouge">node_modules</code>.</p>
+
+<p>Each library gets its own local <code class="highlighter-rouge">node_modules/</code> directory where its dependencies<br />
+are stored and each dependency’s dependencies has its own <code class="highlighter-rouge">node_modules/</code><br />
+directory, recursively all the way down.</p>
+
+<p>This means that packages can successfully use different versions of libraries in<br />
+the same application, which greatly decreases the coordination overhead<br />
+necessary to iterate on APIs. This feature is very important for an ecosystem<br />
+like npm where there is no central authority to manage how packages are<br />
+published and organized. Everyone may simply publish as they see fit and not<br />
+worry about how their dependency version choices might impact other dependencies<br />
+included in the same application.</p>
+
+<p>You can leverage how <code class="highlighter-rouge">node_modules/</code> works to organize your own local<br />
+application modules too. See the <code class="highlighter-rouge">avoiding ../../../../../../..</code> section for<br />
+more.</p>
+
+<h2 id="why-concatenate">why concatenate</h2>
+
+<p>Browserify is a build step that runs on the server. It generates a single bundle<br />
+file that has everything in it.</p>
+
+<p>Here are some other ways of implementing module systems for the browser and what<br />
+their strengths and weaknesses are:</p>
+
+<h3 id="window-globals">window globals</h3>
+
+<p>Instead of a module system, each file defines properties on the window global<br />
+object or develops an internal namespacing scheme.</p>
+
+<p>This approach does not scale well without extreme diligence since each new file<br />
+needs an additional <code class="highlighter-rouge">&lt;script&gt;</code> tag in all of the html pages where the<br />
+application will be rendered. Further, the files tend to be very order-sensitive<br />
+because some files need to be included before other files the expect globals to<br />
+already be present in the environment.</p>
+
+<p>It can be difficult to refactor or maintain applications built this way.<br />
+On the plus side, all browsers natively support this approach and no server-side<br />
+tooling is required.</p>
+
+<p>This approach tends to be very slow since each <code class="highlighter-rouge">&lt;script&gt;</code> tag initiates a<br />
+new round-trip http request.</p>
+
+<h3 id="concatenate">concatenate</h3>
+
+<p>Instead of window globals, all the scripts are concatenated beforehand on the<br />
+server. The code is still order-sensitive and difficult to maintain, but loads<br />
+much faster because only a single http request for a single <code class="highlighter-rouge">&lt;script&gt;</code> tag needs<br />
+to execute.</p>
+
+<p>Without source maps, exceptions thrown will have offsets that can’t be easily<br />
+mapped back to their original files.</p>
+
+<h3 id="amd">AMD</h3>
+
+<p>Instead of using <code class="highlighter-rouge">&lt;script&gt;</code> tags, every file is wrapped with a <code class="highlighter-rouge">define()</code><br />
+function and callback. <a href="http://requirejs.org/docs/whyamd.html">This is AMD</a>.</p>
+
+<p>The first argument is an array of modules to load that maps to each argument<br />
+supplied to the callback. Once all the modules are loaded, the callback fires.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">define</span><span class="p">([</span><span class="s1">'jquery'</span><span class="p">]</span> <span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{};</span>
+<span class="p">});</span>
+</code></pre>
+</div>
+
+<p>You can give your module a name in the first argument so that other modules can<br />
+include it.</p>
+
+<p>There is a commonjs sugar syntax that stringifies each callback and scans it for<br />
+<code class="highlighter-rouge">require()</code> calls<br />
+<a href="https://github.com/jrburke/requirejs/blob/master/require.js#L17">with a regexp</a>.</p>
+
+<p>Code written this way is much less order-sensitive than concatenation or globals<br />
+since the order is resolved by explicit dependency information.</p>
+
+<p>For performance reasons, most of the time AMD is bundled server-side into a<br />
+single file and during development it is more common to actually use the<br />
+asynchronous feature of AMD.</p>
+
+<h3 id="bundling-commonjs-server-side">bundling commonjs server-side</h3>
+
+<p>If you’re going to have a build step for performance and a sugar syntax for<br />
+convenience, why not scrap the whole AMD business altogether and bundle<br />
+commonjs? With tooling you can resolve modules to address order-sensitivity and<br />
+your development and production environments will be much more similar and less<br />
+fragile. The CJS syntax is nicer and the ecosystem is exploding because of node<br />
+and npm.</p>
+
+<p>You can seamlessly share code between node and the browser. You just need a<br />
+build step and some tooling for source maps and auto-rebuilding.</p>
+
+<p>Plus, we can use node’s module lookup algorithms to save us from version<br />
+mismatch insanity so that we can have multiple conflicting versions of different<br />
+required packages in the same application and everything will still work. To<br />
+save bytes down the wire you can dedupe, which is covered elsewhere in this<br />
+document.</p>
+
+<h1 id="development">development</h1>
+
+<p>Concatenation has some downsides, but these can be very adequately addressed<br />
+with development tooling.</p>
+
+<h2 id="source-maps">source maps</h2>
+
+<p>Browserify supports a <code class="highlighter-rouge">--debug</code>/<code class="highlighter-rouge">-d</code> flag and <code class="highlighter-rouge">opts.debug</code> parameter to enable<br />
+source maps. Source maps tell the browser to convert line and column offsets for<br />
+exceptions thrown in the bundle file back into the offsets and filenames of the<br />
+original sources.</p>
+
+<p>The source maps include all the original file contents inline so that you can<br />
+simply put the bundle file on a web server and not need to ensure that all the<br />
+original source contents are accessible from the web server with paths set up<br />
+correctly.</p>
+
+<h3 id="exorcist">exorcist</h3>
+
+<p>The downside of inlining all the source files into the inline source map is that<br />
+the bundle is twice as large. This is fine for debugging locally but not<br />
+practical for shipping source maps to production. However, you can use<br />
+<a href="https://npmjs.org/package/exorcist">exorcist</a> to pull the inline source map out<br />
+into a separate <code class="highlighter-rouge">bundle.map.js</code> file:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>browserify main.js --debug | exorcist bundle.js.map &gt; bundle.js
+</code></pre>
+</div>
+
+<h2 id="auto-recompile">auto-recompile</h2>
+
+<p>Running a command to recompile your bundle every time can be slow and tedious.<br />
+Luckily there are many tools to solve this problem. Some of these tools support<br />
+live-reloading to various degrees and others have a more traditional manual<br />
+refresh cycle.</p>
+
+<p>These are just a few of the tools you can use, but there are many more on npm!<br />
+There are many different tools here that encompass many different tradeoffs and<br />
+development styles. It can be a little bit more work up-front to find the tools<br />
+that responate most strongly with your own personal expectations and experience,<br />
+but I think this diversity helps programmers to be more effective and provides<br />
+more room for creativity and experimentation. I think diversity in tooling and a<br />
+smaller browserify core is healthier in the medium to long term than picking a<br />
+few “winners” by including them in browserify core (which creates all kinds of<br />
+havoc in meaningful versioning and bitrot in core).</p>
+
+<p>That said, here are a few modules you might want to consider for setting up a<br />
+browserify development workflow. But keep an eye out for other tools not (yet)<br />
+on this list!</p>
+
+<h3 id="watchifyhttpsnpmjsorgpackagewatchify"><a href="https://npmjs.org/package/watchify">watchify</a></h3>
+
+<p>You can use <code class="highlighter-rouge">watchify</code> interchangeably with <code class="highlighter-rouge">browserify</code> but instead of writing<br />
+to an output file once, watchify will write the bundle file and then watch all<br />
+of the files in your dependency graph for changes. When you modify a file, the<br />
+new bundle file will be written much more quickly than the first time because of<br />
+aggressive caching.</p>
+
+<p>You can use <code class="highlighter-rouge">-v</code> to print a message every time a new bundle is written:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ watchify browser.js -d -o static/bundle.js -v
+610598 bytes written to static/bundle.js  0.23s
+610606 bytes written to static/bundle.js  0.10s
+610597 bytes written to static/bundle.js  0.14s
+610606 bytes written to static/bundle.js  0.08s
+610597 bytes written to static/bundle.js  0.08s
+610597 bytes written to static/bundle.js  0.19s
+</code></pre>
+</div>
+
+<p>Here is a handy configuration for using watchify and browserify with the<br />
+package.json “scripts” field:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"build"</span><span class="p">:</span><span class="w"> </span><span class="s2">"browserify browser.js -o static/bundle.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"watch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"watchify browser.js -o static/bundle.js --debug --verbose"</span><span class="p">,</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>To build the bundle for production do <code class="highlighter-rouge">npm run build</code> and to watch files for<br />
+during development do <code class="highlighter-rouge">npm run watch</code>.</p>
+
+<p><a href="http://substack.net/task_automation_with_npm_run">Learn more about <code class="highlighter-rouge">npm run</code></a>.</p>
+
+<h3 id="beefyhttpswwwnpmjsorgpackagebeefy"><a href="https://www.npmjs.org/package/beefy">beefy</a></h3>
+
+<p>If you would rather spin up a web server that automatically recompiles your code<br />
+when you modify it, check out <a href="http://didact.us/beefy/">beefy</a>.</p>
+
+<p>Just give beefy an entry file:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>beefy main.js
+</code></pre>
+</div>
+
+<p>and it will set up shop on an http port.</p>
+
+<h3 id="wzrdhttpsgithubcommaxogdenwzrd"><a href="https://github.com/maxogden/wzrd">wzrd</a></h3>
+
+<p>In a similar spirit to beefy but in a more minimal form is<br />
+<a href="https://github.com/maxogden/wzrd">wzrd</a>.</p>
+
+<p>Just <code class="highlighter-rouge">npm install -g wzrd</code> then you can do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>wzrd app.js
+</code></pre>
+</div>
+
+<p>and open up http://localhost:9966 in your browser.</p>
+
+<h3 id="browserify-middleware-enchilada">browserify-middleware, enchilada</h3>
+
+<p>If you are using express, check out<br />
+<a href="https://www.npmjs.org/package/browserify-middleware">browserify-middleware</a><br />
+or <a href="https://www.npmjs.org/package/enchilada">enchilada</a>.</p>
+
+<p>They both provide middleware you can drop into an express application for<br />
+serving browserify bundles.</p>
+
+<h3 id="livereactloadhttpsgithubcommilankinenlivereactload"><a href="https://github.com/milankinen/livereactload">livereactload</a></h3>
+
+<p>livereactload is a tool for <a href="https://github.com/facebook/react">react</a><br />
+that automatically updates your web page state when you modify your code.</p>
+
+<p>livereactload is just an ordinary browserify transform that you can load with<br />
+<code class="highlighter-rouge">-t livereactload</code>, but you should consult the<br />
+<a href="https://github.com/milankinen/livereactload#livereactload">project readme</a><br />
+for more information.</p>
+
+<h3 id="browserify-hmrhttpsgithubcomagentmebrowserify-hmr"><a href="https://github.com/AgentME/browserify-hmr">browserify-hmr</a></h3>
+
+<p>browserify-hmr is a plugin for doing hot module replacement (hmr).</p>
+
+<p>Files can mark themselves as accepting updates. If you modify a file that<br />
+accepts updates of itself, or if you modify a dependency of a file that accepts<br />
+updates, then the file is re-executed with the new code.</p>
+
+<p>For example, if we have a file, <code class="highlighter-rouge">main.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">textContent</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./msg.js'</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nx">module</span><span class="p">.</span><span class="nx">hot</span><span class="p">)</span> <span class="nx">module</span><span class="p">.</span><span class="nx">hot</span><span class="p">.</span><span class="nx">accept</span><span class="p">()</span>
+</code></pre>
+</div>
+
+<p>and a file <code class="highlighter-rouge">msg.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="s1">'hey'</span>
+</code></pre>
+</div>
+
+<p>We can watch <code class="highlighter-rouge">main.js</code> for changes and load the <code class="highlighter-rouge">browserify-hmr</code> plugin:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ watchify main.js -p browserify-hmr -o public/bundle.js -dv
+</code></pre>
+</div>
+
+<p>and serve up the static file contents in <code class="highlighter-rouge">public/</code> with a static file server:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ ecstatic public -p 8000
+</code></pre>
+</div>
+
+<p>Now if we load <code class="highlighter-rouge">http://localhost:8000</code>, we see the message <code class="highlighter-rouge">hey</code> on the page.</p>
+
+<p>If we change <code class="highlighter-rouge">msg.js</code> to be:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="s1">'wow'</span>
+</code></pre>
+</div>
+
+<p>then a second later, the page updates to show <code class="highlighter-rouge">wow</code> all by itself.</p>
+
+<p>Browserify-HMR can be used with<br />
+<a href="https://github.com/AgentME/react-hot-transform">react-hot-transform</a> to<br />
+automatically allow all React components to be updated live in addition to code<br />
+using the <code class="highlighter-rouge">module.hot</code> API. Unlike<br />
+<a href="https://github.com/milankinen/livereactload">livereactload</a>, only modified<br />
+files are re-executed instead of the whole bundle on each modification.</p>
+
+<h3 id="budohttpsgithubcommattdeslbudo"><a href="https://github.com/mattdesl/budo">budo</a></h3>
+
+<p>budo is a browserify development server with a stronger focus on incremental bundling and LiveReload integration (including CSS injection).</p>
+
+<p>Install it like so:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>npm install budo -g
+</code></pre>
+</div>
+
+<p>And run it on your entry file:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>budo app.js
+</code></pre>
+</div>
+
+<p>This starts the server at <a href="http://localhost:9966">http://localhost:9966</a> with a default <code class="highlighter-rouge">index.html</code>, incrementally bundling your source on filesave. The requests are delayed until the bundle has finished, so you won’t be served stale or empty bundles if you refresh the page mid-update.</p>
+
+<p>To enable LiveReload and have the browser refresh on JS/HTML/CSS changes, you can run it like so:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>budo app.js --live
+</code></pre>
+</div>
+
+<h2 id="using-the-api-directly">using the api directly</h2>
+
+<p>You can just use the API directly from an ordinary <code class="highlighter-rouge">http.createServer()</code> for<br />
+development too:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">browserify</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'browserify'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">http</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'http'</span><span class="p">);</span>
+
+<span class="nx">http</span><span class="p">.</span><span class="nx">createServer</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">url</span> <span class="o">===</span> <span class="s1">'/bundle.js'</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">setHeader</span><span class="p">(</span><span class="s1">'content-type'</span><span class="p">,</span> <span class="s1">'application/javascript'</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">b</span> <span class="o">=</span> <span class="nx">browserify</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">'/main.js'</span><span class="p">).</span><span class="nx">bundle</span><span class="p">();</span>
+        <span class="nx">b</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'error'</span><span class="p">,</span> <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">);</span>
+        <span class="nx">b</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">res</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="nx">res</span><span class="p">.</span><span class="nx">writeHead</span><span class="p">(</span><span class="mi">404</span><span class="p">,</span> <span class="s1">'not found'</span><span class="p">)</span>
+<span class="p">});</span>
+</code></pre>
+</div>
+
+<h2 id="grunt">grunt</h2>
+
+<p>If you use grunt, you’ll probably want to use the<br />
+<a href="https://www.npmjs.org/package/grunt-browserify">grunt-browserify</a> plugin.</p>
+
+<h2 id="gulp">gulp</h2>
+
+<p>If you use gulp, you should use the browserify API directly.</p>
+
+<p>Here is<br />
+<a href="http://viget.com/extend/gulp-browserify-starter-faq">a guide for getting started</a><br />
+with gulp and browserify.</p>
+
+<p>Here is a guide on how to <a href="https://github.com/gulpjs/gulp/blob/master/docs/recipes/fast-browserify-builds-with-watchify.md">make browserify builds fast with watchify using<br />
+gulp</a><br />
+from the official gulp recipes.</p>
+
+<h1 id="builtins">builtins</h1>
+
+<p>In order to make more npm modules originally written for node work in the<br />
+browser, browserify provides many browser-specific implementations of node core<br />
+libraries:</p>
+
+<ul>
+  <li><a href="https://npmjs.org/package/assert">assert</a></li>
+  <li><a href="https://npmjs.org/package/buffer">buffer</a></li>
+  <li><a href="https://npmjs.org/package/console-browserify">console</a></li>
+  <li><a href="https://npmjs.org/package/constants-browserify">constants</a></li>
+  <li><a href="https://npmjs.org/package/crypto-browserify">crypto</a></li>
+  <li><a href="https://npmjs.org/package/domain-browser">domain</a></li>
+  <li><a href="https://npmjs.org/package/events">events</a></li>
+  <li><a href="https://npmjs.org/package/http-browserify">http</a></li>
+  <li><a href="https://npmjs.org/package/https-browserify">https</a></li>
+  <li><a href="https://npmjs.org/package/os-browserify">os</a></li>
+  <li><a href="https://npmjs.org/package/path-browserify">path</a></li>
+  <li><a href="https://npmjs.org/package/punycode">punycode</a></li>
+  <li><a href="https://npmjs.org/package/querystring">querystring</a></li>
+  <li><a href="https://npmjs.org/package/stream-browserify">stream</a></li>
+  <li><a href="https://npmjs.org/package/string_decoder">string_decoder</a></li>
+  <li><a href="https://npmjs.org/package/timers-browserify">timers</a></li>
+  <li><a href="https://npmjs.org/package/tty-browserify">tty</a></li>
+  <li><a href="https://npmjs.org/package/url">url</a></li>
+  <li><a href="https://npmjs.org/package/util">util</a></li>
+  <li><a href="https://npmjs.org/package/vm-browserify">vm</a></li>
+  <li><a href="https://npmjs.org/package/browserify-zlib">zlib</a></li>
+</ul>
+
+<p>events, stream, url, path, and querystring are particularly useful in a browser<br />
+environment.</p>
+
+<p>Additionally, if browserify detects the use of <code class="highlighter-rouge">Buffer</code>, <code class="highlighter-rouge">process</code>, <code class="highlighter-rouge">global</code>,<br />
+<code class="highlighter-rouge">__filename</code>, or <code class="highlighter-rouge">__dirname</code>, it will include a browser-appropriate definition.</p>
+
+<p>So even if a module does a lot of buffer and stream operations, it will probably<br />
+just work in the browser, so long as it doesn’t do any server IO.</p>
+
+<p>If you haven’t done any node before, here are some examples of what each of<br />
+those globals can do. Note too that these globals are only actually defined when<br />
+you or some module you depend on uses them.</p>
+
+<h2 id="bufferhttpnodejsorgdocslatestapibufferhtml"><a href="http://nodejs.org/docs/latest/api/buffer.html">Buffer</a></h2>
+
+<p>In node all the file and network APIs deal with Buffer chunks. In browserify the<br />
+Buffer API is provided by <a href="https://www.npmjs.org/package/buffer">buffer</a>, which<br />
+uses augmented typed arrays in a very performant way with fallbacks for old<br />
+browsers.</p>
+
+<p>Here’s an example of using <code class="highlighter-rouge">Buffer</code> to convert a base64 string to hex:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>var buf = Buffer('YmVlcCBib29w', 'base64');
+var hex = buf.toString('hex');
+console.log(hex);
+</code></pre>
+</div>
+
+<p>This example will print:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>6265657020626f6f70
+</code></pre>
+</div>
+
+<h2 id="processhttpnodejsorgdocslatestapiprocesshtmlprocessprocess"><a href="http://nodejs.org/docs/latest/api/process.html#process_process">process</a></h2>
+
+<p>In node, <code class="highlighter-rouge">process</code> is a special object that handles information and control for<br />
+the running process such as environment, signals, and standard IO streams.</p>
+
+<p>Of particular consequence is the <code class="highlighter-rouge">process.nextTick()</code> implementation that<br />
+interfaces with the event loop.</p>
+
+<p>In browserify the process implementation is handled by the<br />
+<a href="https://www.npmjs.org/package/process">process module</a> which just provides<br />
+<code class="highlighter-rouge">process.nextTick()</code> and little else.</p>
+
+<p>Here’s what <code class="highlighter-rouge">process.nextTick()</code> does:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>setTimeout(function () {
+    console.log('third');
+}, 0);
+
+process.nextTick(function () {
+    console.log('second');
+});
+
+console.log('first');
+</code></pre>
+</div>
+
+<p>This script will output:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>first
+second
+third
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">process.nextTick(fn)</code> is like <code class="highlighter-rouge">setTimeout(fn, 0)</code>, but faster because<br />
+<code class="highlighter-rouge">setTimeout</code> is artificially slower in javascript engines for compatibility reasons.</p>
+
+<h2 id="globalhttpnodejsorgdocslatestapiallhtmlallglobal"><a href="http://nodejs.org/docs/latest/api/all.html#all_global">global</a></h2>
+
+<p>In node, <code class="highlighter-rouge">global</code> is the top-level scope where global variables are attached<br />
+similar to how <code class="highlighter-rouge">window</code> works in the browser. In browserify, <code class="highlighter-rouge">global</code> is just an<br />
+alias for the <code class="highlighter-rouge">window</code> object.</p>
+
+<h2 id="filenamehttpnodejsorgdocslatestapiallhtmlallfilename"><a href="http://nodejs.org/docs/latest/api/all.html#all_filename">__filename</a></h2>
+
+<p><code class="highlighter-rouge">__filename</code> is the path to the current file, which is different for each file.</p>
+
+<p>To prevent disclosing system path information, this path is rooted at the<br />
+<code class="highlighter-rouge">opts.basedir</code> that you pass to <code class="highlighter-rouge">browserify()</code>, which defaults to the<br />
+<a href="https://en.wikipedia.org/wiki/Current_working_directory">current working directory</a>.</p>
+
+<p>If we have a <code class="highlighter-rouge">main.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">bar</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./foo/bar.js'</span><span class="p">);</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'here in main.js, __filename is:'</span><span class="p">,</span> <span class="nx">__filename</span><span class="p">);</span>
+<span class="nx">bar</span><span class="p">();</span>
+</code></pre>
+</div>
+
+<p>and a <code class="highlighter-rouge">foo/bar.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'here in foo/bar.js, __filename is:'</span><span class="p">,</span> <span class="nx">__filename</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre>
+</div>
+
+<p>then running browserify starting at <code class="highlighter-rouge">main.js</code> gives this output:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify main.js | node
+here in main.js, __filename is: /main.js
+here in foo/bar.js, __filename is: /foo/bar.js
+</code></pre>
+</div>
+
+<h2 id="dirnamehttpnodejsorgdocslatestapiallhtmlalldirname"><a href="http://nodejs.org/docs/latest/api/all.html#all_dirname">__dirname</a></h2>
+
+<p><code class="highlighter-rouge">__dirname</code> is the directory of the current file. Like <code class="highlighter-rouge">__filename</code>, <code class="highlighter-rouge">__dirname</code><br />
+is rooted at the <code class="highlighter-rouge">opts.basedir</code>.</p>
+
+<p>Here’s an example of how <code class="highlighter-rouge">__dirname</code> works:</p>
+
+<p>main.js:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">require</span><span class="p">(</span><span class="s1">'./x/y/z/abc.js'</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'in main.js __dirname='</span> <span class="o">+</span> <span class="nx">__dirname</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>x/y/z/abc.js:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'in abc.js, __dirname='</span> <span class="o">+</span> <span class="nx">__dirname</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>output:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify main.js | node
+in abc.js, __dirname=/x/y/z
+in main.js __dirname=/
+</code></pre>
+</div>
+
+<h1 id="transforms">transforms</h1>
+
+<p>Instead of browserify baking in support for everything, it supports a flexible<br />
+transform system that are used to convert source files in-place.</p>
+
+<p>This way you can <code class="highlighter-rouge">require()</code> files written in coffee script or templates and<br />
+everything will be compiled down to javascript.</p>
+
+<p>To use <a href="http://coffeescript.org/">coffeescript</a> for example, you can use the<br />
+<a href="https://www.npmjs.org/package/coffeeify">coffeeify</a> transform.<br />
+Make sure you’ve installed coffeeify first with <code class="highlighter-rouge">npm install coffeeify</code> then do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify -t coffeeify main.coffee &gt; bundle.js
+</code></pre>
+</div>
+
+<p>or with the API you can do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>var b = browserify('main.coffee');
+b.transform('coffeeify');
+</code></pre>
+</div>
+
+<p>The best part is, if you have source maps enabled with <code class="highlighter-rouge">--debug</code> or<br />
+<code class="highlighter-rouge">opts.debug</code>, the bundle.js will map exceptions back into the original coffee<br />
+script source files. This is very handy for debugging with firebug or chrome<br />
+inspector.</p>
+
+<h2 id="writing-your-own">writing your own</h2>
+
+<p>Transforms implement a simple streaming interface. Here is a transform that<br />
+replaces <code class="highlighter-rouge">$CWD</code> with the <code class="highlighter-rouge">process.cwd()</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">through</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'through2'</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">file</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">through</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="nx">enc</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">buf</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="s1">'utf8'</span><span class="p">).</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/</span><span class="se">\$</span><span class="sr">CWD/g</span><span class="p">,</span> <span class="nx">process</span><span class="p">.</span><span class="nx">cwd</span><span class="p">()));</span>
+        <span class="nx">next</span><span class="p">();</span>
+    <span class="p">});</span>
+<span class="p">};</span>
+</code></pre>
+</div>
+
+<p>The transform function fires for every <code class="highlighter-rouge">file</code> in the current package and returns<br />
+a transform stream that performs the conversion. The stream is written to and by<br />
+browserify with the original file contents and browserify reads from the stream<br />
+to obtain the new contents.</p>
+
+<p>Simply save your transform to a file or make a package and then add it with<br />
+<code class="highlighter-rouge">-t ./your_transform.js</code>.</p>
+
+<p>For more information about how streams work, check out the<br />
+<a href="https://github.com/substack/stream-handbook">stream handbook</a>.</p>
+
+<h1 id="packagejson">package.json</h1>
+
+<h2 id="browser-field">browser field</h2>
+
+<p>You can define a <code class="highlighter-rouge">"browser"</code> field in the package.json of any package that will<br />
+tell browserify to override lookups for the main field and for individual<br />
+modules.</p>
+
+<p>If you have a module with a main entry point of <code class="highlighter-rouge">main.js</code> for node but have a<br />
+browser-specific entry point at <code class="highlighter-rouge">browser.js</code>, you can do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mypkg"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.2.3"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"main"</span><span class="p">:</span><span class="w"> </span><span class="s2">"main.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"browser"</span><span class="p">:</span><span class="w"> </span><span class="s2">"browser.js"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Now when somebody does <code class="highlighter-rouge">require('mypkg')</code> in node, they will get the exports<br />
+from <code class="highlighter-rouge">main.js</code>, but when they do <code class="highlighter-rouge">require('mypkg')</code> in a browser, they will get<br />
+the exports from <code class="highlighter-rouge">browser.js</code>.</p>
+
+<p>Splitting up whether you are in the browser or not with a <code class="highlighter-rouge">"browser"</code> field in<br />
+this way is greatly preferrable to checking whether you are in a browser at<br />
+runtime because you may want to load different modules based on whether you are<br />
+in node or the browser. If the <code class="highlighter-rouge">require()</code> calls for both node and the browser<br />
+are in the same file, browserify’s static analysis will include everything<br />
+whether you use those files or not.</p>
+
+<p>You can do more with the “browser” field as an object instead of a string.</p>
+
+<p>For example, if you only want to swap out a single file in <code class="highlighter-rouge">lib/</code> with a<br />
+browser-specific version, you could do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mypkg"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.2.3"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"main"</span><span class="p">:</span><span class="w"> </span><span class="s2">"main.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"browser"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"lib/foo.js"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lib/browser-foo.js"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>or if you want to swap out a module used locally in the package, you can do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mypkg"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.2.3"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"main"</span><span class="p">:</span><span class="w"> </span><span class="s2">"main.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"browser"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"fs"</span><span class="p">:</span><span class="w"> </span><span class="s2">"level-fs-browser"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>You can ignore files (setting their contents to the empty object) by setting<br />
+their values in the browser field to <code class="highlighter-rouge">false</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mypkg"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.2.3"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"main"</span><span class="p">:</span><span class="w"> </span><span class="s2">"main.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"browser"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"winston"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>The browser field <em>only</em> applies to the current package. Any mappings you put<br />
+will not propagate down to its dependencies or up to its dependents. This<br />
+isolation is designed to protect modules from each other so that when you<br />
+require a module you won’t need to worry about any system-wide effects it might<br />
+have. Likewise, you shouldn’t need to wory about how your local configuration<br />
+might adversely affect modules far away deep into your dependency graph.</p>
+
+<h2 id="browserifytransform-field">browserify.transform field</h2>
+
+<p>You can configure transforms to be automatically applied when a module is loaded<br />
+in a package’s <code class="highlighter-rouge">browserify.transform</code> field. For example, we can automatically<br />
+apply the <a href="https://npmjs.org/package/brfs">brfs</a> transform with this<br />
+package.json:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mypkg"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.2.3"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"main"</span><span class="p">:</span><span class="w"> </span><span class="s2">"main.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"browserify"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"transform"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"brfs"</span><span class="w"> </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Now in our <code class="highlighter-rouge">main.js</code> we can do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'fs'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">src</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">'/foo.txt'</span><span class="p">,</span> <span class="s1">'utf8'</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">x</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">src</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="s1">'zzz'</span><span class="p">)</span> <span class="p">};</span>
+</code></pre>
+</div>
+
+<p>and the <code class="highlighter-rouge">fs.readFileSync()</code> call will be inlined by brfs without consumers of<br />
+the module having to know. You can apply as many transforms as you like in the<br />
+transform array and they will be applied in order.</p>
+
+<p>Like the <code class="highlighter-rouge">"browser"</code> field, transforms configured in package.json will only<br />
+apply to the local package for the same reasons.</p>
+
+<h3 id="configuring-transforms">configuring transforms</h3>
+
+<p>Sometimes a transform takes configuration options on the command line. To apply these<br />
+from package.json you can do the following.</p>
+
+<p><strong>on the command line</strong><br />
+<code class="highlighter-rouge">
+browserify -t coffeeify \
+           -t [ browserify-ngannotate --ext .coffee --bar ] \
+           index.coffee &gt; index.js
+</code></p>
+
+<p><strong>in package.json</strong><br />
+<code class="highlighter-rouge">json
+"browserify": {
+  "transform": [
+    "coffeeify",
+    ["browserify-ngannotate", {"ext": ".coffee", bar: true}]
+  ]
+}
+</code></p>
+
+<h1 id="finding-good-modules">finding good modules</h1>
+
+<p>Here are <a href="http://substack.net/finding_modules">some useful heuristics</a><br />
+for finding good modules on npm that work in the browser:</p>
+
+<ul>
+  <li>
+    <p>I can install it with npm</p>
+  </li>
+  <li>
+    <p>code snippet on the readme using require() - from a quick glance I should see<br />
+how to integrate the library into what I’m presently working on</p>
+  </li>
+  <li>
+    <p>has a very clear, narrow idea about scope and purpose</p>
+  </li>
+  <li>
+    <p>knows when to delegate to other libraries - doesn’t try to do too many things itself</p>
+  </li>
+  <li>
+    <p>written or maintained by authors whose opinions about software scope,<br />
+modularity, and interfaces I generally agree with (often a faster shortcut<br />
+than reading the code/docs very closely)</p>
+  </li>
+  <li>
+    <p>inspecting which modules depend on the library I’m evaluating - this is baked<br />
+into the package page for modules published to npm</p>
+  </li>
+</ul>
+
+<p>Other metrics like number of stars on github, project activity, or a slick<br />
+landing page, are not as reliable.</p>
+
+<h2 id="module-philosophy">module philosophy</h2>
+
+<p>People used to think that exporting a bunch of handy utility-style things would<br />
+be the main way that programmers would consume code because that is the primary<br />
+way of exporting and importing code on most other platforms and indeed still<br />
+persists even on npm.</p>
+
+<p>However, this<br />
+<a href="https://github.com/substack/node-mkdirp/issues/17">kitchen-sink mentality</a><br />
+toward including a bunch of thematically-related but separable functionality<br />
+into a single package appears to be an artifact for the difficulty of<br />
+publishing and discovery in a pre-github, pre-npm era.</p>
+
+<p>There are two other big problems with modules that try to export a bunch of<br />
+functionality all in one place under the auspices of convenience: demarcation<br />
+turf wars and finding which modules do what.</p>
+
+<p>Packages that are grab-bags of features<br />
+<a href="https://github.com/jashkenas/underscore/search?q=%22special-case%22&amp;ref=cmdform&amp;type=Issues">waste a ton of time policing boundaries</a><br />
+about which new features belong and don’t belong.<br />
+There is no clear natural boundary of the problem domain in this kind of package<br />
+about what the scope is, it’s all<br />
+<a href="http://david.heinemeierhansson.com/2012/rails-is-omakase.html">somebody’s smug opinion</a>.</p>
+
+<p>Node, npm, and browserify are not that. They are avowedly ala-carte,<br />
+participatory, and would rather celebrate disagreement and the dizzying<br />
+proliferation of new ideas and approaches than try to clamp down in the name of<br />
+conformity, standards, or “best practices”.</p>
+
+<p>Nobody who needs to do gaussian blur ever thinks “hmm I guess I’ll start checking<br />
+generic mathematics, statistics, image processing, and utility libraries to see<br />
+which one has gaussian blur in it. Was it stats2 or image-pack-utils or<br />
+maths-extra or maybe underscore has that one?”<br />
+No. None of this. Stop it. They <code class="highlighter-rouge">npm search gaussian</code> and they immediately see<br />
+<a href="https://npmjs.org/package/ndarray-gaussian-filter">ndarray-gaussian-filter</a> and<br />
+it does exactly what they want and then they continue on with their actual<br />
+problem instead of getting lost in the weeds of somebody’s neglected grand<br />
+utility fiefdom.</p>
+
+<h1 id="organizing-modules">organizing modules</h1>
+
+<h2 id="avoiding-">avoiding ../../../../../../..</h2>
+
+<p>Not everything in an application properly belongs on the public npm and the<br />
+overhead of setting up a private npm or git repo is still rather large in many<br />
+cases. Here are some approaches for avoiding the <code class="highlighter-rouge">../../../../../../../</code><br />
+relative paths problem.</p>
+
+<h3 id="symlink">symlink</h3>
+
+<p>The simplest thing you can do is to symlink your app root directory into your<br />
+node_modules/ directory.</p>
+
+<p>Did you know that <a href="http://www.howtogeek.com/howto/windows-vista/using-symlinks-in-windows-vista/">symlinks work on windows<br />
+too</a>?</p>
+
+<p>To link a <code class="highlighter-rouge">lib/</code> directory in your project root into <code class="highlighter-rouge">node_modules</code>, do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>ln -s ../lib node_modules/app
+</code></pre>
+</div>
+
+<p>and now from anywhere in your project you’ll be able to require files in <code class="highlighter-rouge">lib/</code><br />
+by doing <code class="highlighter-rouge">require('app/foo.js')</code> to get <code class="highlighter-rouge">lib/foo.js</code>.</p>
+
+<h3 id="nodemodules">node_modules</h3>
+
+<p>People sometimes object to putting application-specific modules into<br />
+node_modules because it is not obvious how to check in your internal modules<br />
+without also checking in third-party modules from npm.</p>
+
+<p>The answer is quite simple! If you have a <code class="highlighter-rouge">.gitignore</code> file that ignores<br />
+<code class="highlighter-rouge">node_modules</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>node_modules
+</code></pre>
+</div>
+
+<p>You can just add an exception with <code class="highlighter-rouge">!</code> for each of your internal application<br />
+modules:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>node_modules/*
+!node_modules/foo
+!node_modules/bar
+</code></pre>
+</div>
+
+<p>Please note that you can’t <em>unignore</em> a subdirectory,<br />
+if the parent is already ignored. So instead of ignoring <code class="highlighter-rouge">node_modules</code>,<br />
+you have to ignore every directory <em>inside</em> <code class="highlighter-rouge">node_modules</code> with the<br />
+<code class="highlighter-rouge">node_modules/*</code> trick, and then you can add your exceptions.</p>
+
+<p>Now anywhere in your application you will be able to <code class="highlighter-rouge">require('foo')</code> or<br />
+<code class="highlighter-rouge">require('bar')</code> without having a very large and fragile relative path.</p>
+
+<p>If you have a lot of modules and want to keep them more separate from the<br />
+third-party modules installed by npm, you can just put them all under a<br />
+directory in <code class="highlighter-rouge">node_modules</code> such as <code class="highlighter-rouge">node_modules/app</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>node_modules/app/foo
+node_modules/app/bar
+</code></pre>
+</div>
+
+<p>Now you will be able to <code class="highlighter-rouge">require('app/foo')</code> or <code class="highlighter-rouge">require('app/bar')</code> from<br />
+anywhere in your application.</p>
+
+<p>In your <code class="highlighter-rouge">.gitignore</code>, just add an exception for <code class="highlighter-rouge">node_modules/app</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>node_modules/*
+!node_modules/app
+</code></pre>
+</div>
+
+<p>If your application had transforms configured in package.json, you’ll need to<br />
+create a separate package.json with its own transform field in your<br />
+<code class="highlighter-rouge">node_modules/foo</code> or <code class="highlighter-rouge">node_modules/app/foo</code> component directory because<br />
+transforms don’t apply across module boundaries. This will make your modules<br />
+more robust against configuration changes in your application and it will be<br />
+easier to independently reuse the packages outside of your application.</p>
+
+<h3 id="custom-paths">custom paths</h3>
+
+<p>You might see some places talk about using the <code class="highlighter-rouge">$NODE_PATH</code> environment variable<br />
+or <code class="highlighter-rouge">opts.paths</code> to add directories for node and browserify to look in to find<br />
+modules.</p>
+
+<p>Unlike most other platforms, using a shell-style array of path directories with<br />
+<code class="highlighter-rouge">$NODE_PATH</code> is not as favorable in node compared to making effective use of the<br />
+<code class="highlighter-rouge">node_modules</code> directory.</p>
+
+<p>This is because your application is more tightly coupled to a runtime<br />
+environment configuration so there are more moving parts and your application<br />
+will only work when your environment is setup correctly.</p>
+
+<p>node and browserify both support but discourage the use of <code class="highlighter-rouge">$NODE_PATH</code>.</p>
+
+<h2 id="non-javascript-assets">non-javascript assets</h2>
+
+<p>There are many<br />
+<a href="https://github.com/substack/node-browserify/wiki/list-of-transforms">browserify transforms</a><br />
+you can use to do many things. Commonly, transforms are used to include<br />
+non-javascript assets into bundle files.</p>
+
+<h3 id="brfs">brfs</h3>
+
+<p>One way of including any kind of asset that works in both node and the browser<br />
+is brfs.</p>
+
+<p>brfs uses static analysis to compile the results of <code class="highlighter-rouge">fs.readFile()</code> and<br />
+<code class="highlighter-rouge">fs.readFileSync()</code> calls down to source contents at compile time.</p>
+
+<p>For example, this <code class="highlighter-rouge">main.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'fs'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">html</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">'/robot.html'</span><span class="p">,</span> <span class="s1">'utf8'</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">html</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>applied through brfs would become something like:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'fs'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">html</span> <span class="o">=</span> <span class="s2">"&lt;b&gt;beep boop&lt;/b&gt;"</span><span class="p">;</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">html</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>when run through brfs.</p>
+
+<p>This is handy because you can reuse the exact same code in node and the browser,<br />
+which makes sharing modules and testing much simpler.</p>
+
+<p><code class="highlighter-rouge">fs.readFile()</code> and <code class="highlighter-rouge">fs.readFileSync()</code> accept the same arguments as in node,<br />
+which makes including inline image assets as base64-encoded strings very easy:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'fs'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">imdata</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">'/image.png'</span><span class="p">,</span> <span class="s1">'base64'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">img</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">'img'</span><span class="p">);</span>
+<span class="nx">img</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="s1">'src'</span><span class="p">,</span> <span class="s1">'data:image/png;base64,'</span> <span class="o">+</span> <span class="nx">imdata</span><span class="p">);</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">img</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>If you have some css you want to inline into your bundle, you can do that too<br />
+with the assistence of a module such as<br />
+<a href="https://npmjs.org/package/insert-css">insert-css</a>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'fs'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">insertStyle</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'insert-css'</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">css</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">'/style.css'</span><span class="p">,</span> <span class="s1">'utf8'</span><span class="p">);</span>
+<span class="nx">insertStyle</span><span class="p">(</span><span class="nx">css</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>Inserting css this way works fine for small reusable modules that you distribute<br />
+with npm because they are fully-contained, but if you want a more wholistic<br />
+approach to asset management using browserify, check out<br />
+<a href="https://www.npmjs.org/package/atomify">atomify</a> and<br />
+<a href="https://www.npmjs.org/package/parcelify">parcelify</a>.</p>
+
+<h3 id="hbsify">hbsify</h3>
+
+<h3 id="jadeify">jadeify</h3>
+
+<h3 id="reactify">reactify</h3>
+
+<h2 id="reusable-components">reusable components</h2>
+
+<p>Putting these ideas about code organization together, we can build a reusable UI<br />
+component that we can reuse across our application or in other applications.</p>
+
+<p>Here is a bare-bones example of an empty widget module:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">Widget</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">Widget</span> <span class="p">(</span><span class="nx">opts</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="k">this</span> <span class="k">instanceof</span> <span class="nx">Widget</span><span class="p">))</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">Widget</span><span class="p">(</span><span class="nx">opts</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">element</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">'div'</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nx">Widget</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">appendTo</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">target</span> <span class="o">===</span> <span class="s1">'string'</span><span class="p">)</span> <span class="nx">target</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="nx">target</span><span class="p">);</span>
+    <span class="nx">target</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">element</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre>
+</div>
+
+<p>Handy javascript constructor tip: you can include a <code class="highlighter-rouge">this instanceof Widget</code><br />
+check like above to let people consume your module with <code class="highlighter-rouge">new Widget</code> or<br />
+<code class="highlighter-rouge">Widget()</code>. It’s nice because it hides an implementation detail from your API<br />
+and you still get the performance benefits and indentation wins of using<br />
+prototypes.</p>
+
+<p>To use this widget, just use <code class="highlighter-rouge">require()</code> to load the widget file, instantiate<br />
+it, and then call <code class="highlighter-rouge">.appendTo()</code> with a css selector string or a dom element.</p>
+
+<p>Like this:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">Widget</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./widget.js'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">w</span> <span class="o">=</span> <span class="nx">Widget</span><span class="p">();</span>
+<span class="nx">w</span><span class="p">.</span><span class="nx">appendTo</span><span class="p">(</span><span class="s1">'#container'</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>and now your widget will be appended to the DOM.</p>
+
+<p>Creating HTML elements procedurally is fine for very simple content but gets<br />
+very verbose and unclear for anything bigger. Luckily there are many transforms<br />
+available to ease importing HTML into your javascript modules.</p>
+
+<p>Let’s extend our widget example using <a href="https://npmjs.org/package/brfs">brfs</a>. We<br />
+can also use <a href="https://npmjs.org/package/domify">domify</a> to turn the string that<br />
+<code class="highlighter-rouge">fs.readFileSync()</code> returns into an html dom element:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'fs'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">domify</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'domify'</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">html</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">'/widget.html'</span><span class="p">,</span> <span class="s1">'utf8'</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">Widget</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">Widget</span> <span class="p">(</span><span class="nx">opts</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="k">this</span> <span class="k">instanceof</span> <span class="nx">Widget</span><span class="p">))</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">Widget</span><span class="p">(</span><span class="nx">opts</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">element</span> <span class="o">=</span> <span class="nx">domify</span><span class="p">(</span><span class="nx">html</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nx">Widget</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">appendTo</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">target</span> <span class="o">===</span> <span class="s1">'string'</span><span class="p">)</span> <span class="nx">target</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="nx">target</span><span class="p">);</span>
+    <span class="nx">target</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">element</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre>
+</div>
+
+<p>and now our widget will load a <code class="highlighter-rouge">widget.html</code>, so let’s make one:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"widget"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;h1</span> <span class="na">class=</span><span class="s">"name"</span><span class="nt">&gt;&lt;/h1&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"msg"</span><span class="nt">&gt;&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre>
+</div>
+
+<p>It’s often useful to emit events. Here’s how we can emit events using the<br />
+built-in <code class="highlighter-rouge">events</code> module and the <a href="https://npmjs.org/package/inherits">inherits</a><br />
+module:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'fs'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">domify</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'domify'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">inherits</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'inherits'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">EventEmitter</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'events'</span><span class="p">).</span><span class="nx">EventEmitter</span><span class="p">;</span>
+
+<span class="kd">var</span> <span class="nx">html</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">'/widget.html'</span><span class="p">,</span> <span class="s1">'utf8'</span><span class="p">);</span>
+
+<span class="nx">inherits</span><span class="p">(</span><span class="nx">Widget</span><span class="p">,</span> <span class="nx">EventEmitter</span><span class="p">);</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">Widget</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">Widget</span> <span class="p">(</span><span class="nx">opts</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="k">this</span> <span class="k">instanceof</span> <span class="nx">Widget</span><span class="p">))</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">Widget</span><span class="p">(</span><span class="nx">opts</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">element</span> <span class="o">=</span> <span class="nx">domify</span><span class="p">(</span><span class="nx">html</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nx">Widget</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">appendTo</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">target</span> <span class="o">===</span> <span class="s1">'string'</span><span class="p">)</span> <span class="nx">target</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="nx">target</span><span class="p">);</span>
+    <span class="nx">target</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">element</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">'append'</span><span class="p">,</span> <span class="nx">target</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre>
+</div>
+
+<p>Now we can listen for <code class="highlighter-rouge">'append'</code> events on our widget instance:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">Widget</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./widget.js'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">w</span> <span class="o">=</span> <span class="nx">Widget</span><span class="p">();</span>
+<span class="nx">w</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'append'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'appended to: '</span> <span class="o">+</span> <span class="nx">target</span><span class="p">.</span><span class="nx">outerHTML</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">w</span><span class="p">.</span><span class="nx">appendTo</span><span class="p">(</span><span class="s1">'#container'</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>We can add more methods to our widget to set elements on the html:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'fs'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">domify</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'domify'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">inherits</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'inherits'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">EventEmitter</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'events'</span><span class="p">).</span><span class="nx">EventEmitter</span><span class="p">;</span>
+
+<span class="kd">var</span> <span class="nx">html</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">'/widget.html'</span><span class="p">,</span> <span class="s1">'utf8'</span><span class="p">);</span>
+
+<span class="nx">inherits</span><span class="p">(</span><span class="nx">Widget</span><span class="p">,</span> <span class="nx">EventEmitter</span><span class="p">);</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">Widget</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">Widget</span> <span class="p">(</span><span class="nx">opts</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="k">this</span> <span class="k">instanceof</span> <span class="nx">Widget</span><span class="p">))</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">Widget</span><span class="p">(</span><span class="nx">opts</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">element</span> <span class="o">=</span> <span class="nx">domify</span><span class="p">(</span><span class="nx">html</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nx">Widget</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">appendTo</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">target</span> <span class="o">===</span> <span class="s1">'string'</span><span class="p">)</span> <span class="nx">target</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="nx">target</span><span class="p">);</span>
+    <span class="nx">target</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">element</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="nx">Widget</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">setName</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">element</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">'.name'</span><span class="p">).</span><span class="nx">textContent</span> <span class="o">=</span> <span class="nx">name</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nx">Widget</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">setMessage</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">msg</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">element</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">'.msg'</span><span class="p">).</span><span class="nx">textContent</span> <span class="o">=</span> <span class="nx">msg</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>If setting element attributes and content gets too verbose, check out<br />
+<a href="https://npmjs.org/package/hyperglue">hyperglue</a>.</p>
+
+<p>Now finally, we can toss our <code class="highlighter-rouge">widget.js</code> and <code class="highlighter-rouge">widget.html</code> into<br />
+<code class="highlighter-rouge">node_modules/app-widget</code>. Since our widget uses the<br />
+<a href="https://npmjs.org/package/brfs">brfs</a> transform, we can create a <code class="highlighter-rouge">package.json</code><br />
+with:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"app-widget"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"private"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"main"</span><span class="p">:</span><span class="w"> </span><span class="s2">"widget.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"browserify"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"transform"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"brfs"</span><span class="w"> </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"dependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"brfs"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^1.1.1"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"inherits"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^2.0.1"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>And now whenever we <code class="highlighter-rouge">require('app-widget')</code> from anywhere in our application,<br />
+brfs will be applied to our <code class="highlighter-rouge">widget.js</code> automatically!<br />
+Our widget can even maintain its own dependencies. This way we can update<br />
+dependencies in one widgets without worrying about breaking changes cascading<br />
+over into other widgets.</p>
+
+<p>Make sure to add an exclusion in your <code class="highlighter-rouge">.gitignore</code> for<br />
+<code class="highlighter-rouge">node_modules/app-widget</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>node_modules/*
+!node_modules/app-widget
+</code></pre>
+</div>
+
+<p>You can read more about <a href="http://substack.net/shared_rendering_in_node_and_the_browser">shared rendering in node and the<br />
+browser</a> if you<br />
+want to learn about sharing rendering logic between node and the browser using<br />
+browserify and some streaming html libraries.</p>
+
+<h1 id="testing-in-node-and-the-browser">testing in node and the browser</h1>
+
+<p>Testing modular code is very easy! One of the biggest benefits of modularity is<br />
+that your interfaces become much easier to instantiate in isolation and so it’s<br />
+easy to make automated tests.</p>
+
+<p>Unfortunately, few testing libraries play nicely out of the box with modules and<br />
+tend to roll their own idiosyncratic interfaces with implicit globals and obtuse<br />
+flow control that get in the way of a clean design with good separation.</p>
+
+<p>People also make a huge fuss about “mocking” but it’s usually not necessary if<br />
+you design your modules with testing in mind. Keeping IO separate from your<br />
+algorithms, carefully restricting the scope of your module, and accepting<br />
+callback parameters for different interfaces can all make your code much easier<br />
+to test.</p>
+
+<p>For example, if you have a library that does both IO and speaks a protocol,<br />
+<a href="https://www.youtube.com/watch?v=g5ewQEuXjsQ#t=12m30">consider separating the IO layer from the<br />
+protocol</a><br />
+using an interface like <a href="https://github.com/substack/stream-handbook">streams</a>.</p>
+
+<p>Your code will be easier to test and reusable in different contexts that you<br />
+didn’t initially envision. This is a recurring theme of testing: if your code is<br />
+hard to test, it is probably not modular enough or contains the wrong balance of<br />
+abstractions. Testing should not be an afterthought, it should inform your<br />
+whole design and it will help you to write better interfaces.</p>
+
+<h2 id="testing-libraries">testing libraries</h2>
+
+<h3 id="tapehttpsnpmjsorgpackagetape"><a href="https://npmjs.org/package/tape">tape</a></h3>
+
+<p>Tape was specifically designed from the start to work well in both node and<br />
+browserify. Suppose we have an <code class="highlighter-rouge">index.js</code> with an async interface:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">cb</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nx">cb</span><span class="p">(</span><span class="nx">x</span> <span class="o">*</span> <span class="mi">100</span><span class="p">);</span>
+    <span class="p">},</span> <span class="mi">1000</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre>
+</div>
+
+<p>Here’s how we can test this module using <a href="https://npmjs.org/package/tape">tape</a>.<br />
+Let’s put this file in <code class="highlighter-rouge">test/beep.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">test</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'tape'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">hundreder</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'../'</span><span class="p">);</span>
+
+<span class="nx">test</span><span class="p">(</span><span class="s1">'beep'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">t</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">t</span><span class="p">.</span><span class="nx">plan</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+    <span class="nx">hundreder</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">t</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">n</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="s1">'5*100 === 500'</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</code></pre>
+</div>
+
+<p>Because the test file lives in <code class="highlighter-rouge">test/</code>, we can require the <code class="highlighter-rouge">index.js</code> in the<br />
+parent directory by doing <code class="highlighter-rouge">require('../')</code>. <code class="highlighter-rouge">index.js</code> is the default place that<br />
+node and browserify look for a module if there is no package.json in that<br />
+directory with a <code class="highlighter-rouge">main</code> field.</p>
+
+<p>We can <code class="highlighter-rouge">require()</code> tape like any other library after it has been installed with<br />
+<code class="highlighter-rouge">npm install tape</code>.</p>
+
+<p>The string <code class="highlighter-rouge">'beep'</code> is an optional name for the test.<br />
+The 3rd argument to <code class="highlighter-rouge">t.equal()</code> is a completely optional description.</p>
+
+<p>The <code class="highlighter-rouge">t.plan(1)</code> says that we expect 1 assertion. If there are not enough<br />
+assertions or too many, the test will fail. An assertion is a comparison<br />
+like <code class="highlighter-rouge">t.equal()</code>. tape has assertion primitives for:</p>
+
+<ul>
+  <li>t.equal(a, b) - compare a and b strictly with <code class="highlighter-rouge">===</code></li>
+  <li>t.deepEqual(a, b) - compare a and b recursively</li>
+  <li>t.ok(x) - fail if <code class="highlighter-rouge">x</code> is not truthy</li>
+</ul>
+
+<p>and more! You can always add an additional description argument.</p>
+
+<p>Running our module is very simple! To run the module in node, just run<br />
+<code class="highlighter-rouge">node test/beep.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ node test/beep.js
+TAP version 13
+# beep
+ok 1 5*100 === 500
+
+1..1
+# tests 1
+# pass  1
+
+# ok
+</code></pre>
+</div>
+
+<p>The output is printed to stdout and the exit code is 0.</p>
+
+<p>To run our code in the browser, just do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify test/beep.js &gt; bundle.js
+</code></pre>
+</div>
+
+<p>then plop <code class="highlighter-rouge">bundle.js</code> into a <code class="highlighter-rouge">&lt;script&gt;</code> tag:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;script src="bundle.js"&gt;&lt;/script&gt;
+</code></pre>
+</div>
+
+<p>and load that html in a browser. The output will be in the debug console which<br />
+you can open with F12, ctrl-shift-j, or ctrl-shift-k depending on the browser.</p>
+
+<p>This is a bit cumbersome to run our tests in a browser, but you can install the<br />
+<code class="highlighter-rouge">testling</code> command to help. First do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>npm install -g testling
+</code></pre>
+</div>
+
+<p>And now just do <code class="highlighter-rouge">browserify test/beep.js | testling</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify test/beep.js | testling
+
+TAP version 13
+# beep
+ok 1 5*100 === 500
+
+1..1
+# tests 1
+# pass  1
+
+# ok
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">testling</code> will launch a real browser headlessly on your system to run the tests.</p>
+
+<p>Now suppose we want to add another file, <code class="highlighter-rouge">test/boop.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">test</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'tape'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">hundreder</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'../'</span><span class="p">);</span>
+
+<span class="nx">test</span><span class="p">(</span><span class="s1">'fraction'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">t</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">t</span><span class="p">.</span><span class="nx">plan</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+    <span class="nx">hundreder</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">20</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">t</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">n</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">'1/20th of 100'</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+
+<span class="nx">test</span><span class="p">(</span><span class="s1">'negative'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">t</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">t</span><span class="p">.</span><span class="nx">plan</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+    <span class="nx">hundreder</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">t</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">n</span><span class="p">,</span> <span class="o">-</span><span class="mi">300</span><span class="p">,</span> <span class="s1">'negative number'</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</code></pre>
+</div>
+
+<p>Here our test has 2 <code class="highlighter-rouge">test()</code> blocks. The second test block won’t start to<br />
+execute until the first is completely finished, even though it is asynchronous.<br />
+You can even nest test blocks by using <code class="highlighter-rouge">t.test()</code>.</p>
+
+<p>We can run <code class="highlighter-rouge">test/boop.js</code> with node directly as with <code class="highlighter-rouge">test/beep.js</code>, but if we<br />
+want to run both tests, there is a minimal command-runner we can use that comes<br />
+with tape. To get the <code class="highlighter-rouge">tape</code> command do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>npm install -g tape
+</code></pre>
+</div>
+
+<p>and now you can run:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ tape test/*.js
+TAP version 13
+# beep
+ok 1 5*100 === 500
+# fraction
+ok 2 1/20th of 100
+# negative
+ok 3 negative number
+
+1..3
+# tests 3
+# pass  3
+
+# ok
+</code></pre>
+</div>
+
+<p>and you can just pass <code class="highlighter-rouge">test/*.js</code> to browserify to run your tests in the<br />
+browser:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify test/* | testling
+
+TAP version 13
+# beep
+ok 1 5*100 === 500
+# fraction
+ok 2 1/20th of 100
+# negative
+ok 3 negative number
+
+1..3
+# tests 3
+# pass  3
+
+# ok
+</code></pre>
+</div>
+
+<p>Putting together all these steps, we can configure <code class="highlighter-rouge">package.json</code> with a test<br />
+script:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hundreder"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"main"</span><span class="p">:</span><span class="w"> </span><span class="s2">"index.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"devDependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"tape"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^2.13.1"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"testling"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^1.6.1"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"test"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tape test/*.js"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"test-browser"</span><span class="p">:</span><span class="w"> </span><span class="s2">"browserify test/*.js | testlingify"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Now you can do <code class="highlighter-rouge">npm test</code> to run the tests in node and <code class="highlighter-rouge">npm run test-browser</code> to<br />
+run the tests in the browser. You don’t need to worry about installing commands<br />
+with <code class="highlighter-rouge">-g</code> when you use <code class="highlighter-rouge">npm run</code>: npm automatically sets up the <code class="highlighter-rouge">$PATH</code> for all<br />
+packages installed locally to the project.</p>
+
+<p>If you have some tests that only run in node and some tests that only run in the<br />
+browser, you could have subdirectories in <code class="highlighter-rouge">test/</code> such as <code class="highlighter-rouge">test/server</code> and<br />
+<code class="highlighter-rouge">test/browser</code> with the tests that run both places just in <code class="highlighter-rouge">test/</code>. Then you<br />
+could just add the relevant directory to the globs:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hundreder"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"main"</span><span class="p">:</span><span class="w"> </span><span class="s2">"index.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"devDependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"tape"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^2.13.1"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"testling"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^1.6.1"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"test"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tape test/*.js test/server/*.js"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"test-browser"</span><span class="p">:</span><span class="w"> </span><span class="s2">"browserify test/*.js test/browser/*.js | testling"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>and now server-specific and browser-specific tests will be run in addition to<br />
+the common tests.</p>
+
+<p>If you want something even slicker, check out<br />
+<a href="https://www.npmjs.org/package/prova">prova</a> once you have gotten the basic<br />
+concepts.</p>
+
+<h3 id="assert">assert</h3>
+
+<p>The core assert module is a fine way to write simple tests too, although it can<br />
+sometimes be tricky to ensure that the correct number of callbacks have fired.</p>
+
+<p>You can solve that problem with tools like<br />
+<a href="https://www.npmjs.org/package/macgyver">macgyver</a> but it is appropriately DIY.</p>
+
+<h2 id="code-coverage">code coverage</h2>
+
+<h3 id="coverify">coverify</h3>
+
+<p>A simple way to check code coverage in browserify is to use the<br />
+<a href="https://npmjs.org/package/coverify">coverify</a> transform.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify -t coverify test/*.js | node | coverify
+</code></pre>
+</div>
+
+<p>or to run your tests in a real browser:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify -t coverify test/*.js | testling | coverify
+</code></pre>
+</div>
+
+<p>coverify works by transforming the source of each package so that each<br />
+expression is wrapped in a <code class="highlighter-rouge">__coverageWrap()</code> function.</p>
+
+<p>Each expression in the program gets a unique ID and the <code class="highlighter-rouge">__coverageWrap()</code><br />
+function will print <code class="highlighter-rouge">COVERED $FILE $ID</code> the first time the expression is<br />
+executed.</p>
+
+<p>Before the expressions run, coverify prints a <code class="highlighter-rouge">COVERAGE $FILE $NODES</code> message to<br />
+log the expression nodes across the entire file as character ranges.</p>
+
+<p>Here’s what the output of a full run looks like:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify -t coverify test/whatever.js | node
+COVERAGE "/home/substack/projects/defined/test/whatever.js" [[14,28],[14,28],[0,29],[41,56],[41,56],[30,57],[95,104],[95,105],[126,146],[126,146],[115,147],[160,194],[160,194],[152,195],[200,217],[200,218],[76,220],[59,221],[59,222]]
+COVERED "/home/substack/projects/defined/test/whatever.js" 2
+COVERED "/home/substack/projects/defined/test/whatever.js" 1
+COVERED "/home/substack/projects/defined/test/whatever.js" 0
+COVERAGE "/home/substack/projects/defined/index.js" [[48,49],[55,71],[51,71],[73,76],[92,104],[92,118],[127,139],[120,140],[172,195],[172,196],[0,204],[0,205]]
+COVERED "/home/substack/projects/defined/index.js" 11
+COVERED "/home/substack/projects/defined/index.js" 10
+COVERED "/home/substack/projects/defined/test/whatever.js" 5
+COVERED "/home/substack/projects/defined/test/whatever.js" 4
+COVERED "/home/substack/projects/defined/test/whatever.js" 3
+COVERED "/home/substack/projects/defined/test/whatever.js" 18
+COVERED "/home/substack/projects/defined/test/whatever.js" 17
+COVERED "/home/substack/projects/defined/test/whatever.js" 16
+TAP version 13
+# whatever
+COVERED "/home/substack/projects/defined/test/whatever.js" 7
+COVERED "/home/substack/projects/defined/test/whatever.js" 6
+COVERED "/home/substack/projects/defined/test/whatever.js" 10
+COVERED "/home/substack/projects/defined/test/whatever.js" 9
+COVERED "/home/substack/projects/defined/test/whatever.js" 8
+COVERED "/home/substack/projects/defined/test/whatever.js" 13
+COVERED "/home/substack/projects/defined/test/whatever.js" 12
+COVERED "/home/substack/projects/defined/test/whatever.js" 11
+COVERED "/home/substack/projects/defined/index.js" 0
+COVERED "/home/substack/projects/defined/index.js" 2
+COVERED "/home/substack/projects/defined/index.js" 1
+COVERED "/home/substack/projects/defined/index.js" 5
+COVERED "/home/substack/projects/defined/index.js" 4
+COVERED "/home/substack/projects/defined/index.js" 3
+COVERED "/home/substack/projects/defined/index.js" 7
+COVERED "/home/substack/projects/defined/index.js" 6
+COVERED "/home/substack/projects/defined/test/whatever.js" 15
+COVERED "/home/substack/projects/defined/test/whatever.js" 14
+ok 1 should be equal
+
+1..1
+# tests 1
+# pass  1
+
+# ok
+</code></pre>
+</div>
+
+<p>These COVERED and COVERAGE statements are just printed on stdout and they can be<br />
+fed into the <code class="highlighter-rouge">coverify</code> command to generate prettier output:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify -t coverify test/whatever.js | node | coverify
+TAP version 13
+# whatever
+ok 1 should be equal
+
+1..1
+# tests 1
+# pass  1
+
+# ok
+
+# /home/substack/projects/defined/index.js: line 6, column 9-32
+
+          console.log('whatever');
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+
+# coverage: 30/31 (96.77 %)
+</code></pre>
+</div>
+
+<p>To include code coverage into your project, you can add an entry into the<br />
+<code class="highlighter-rouge">package.json</code> scripts field:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"test"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tape test/*.js"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"coverage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"browserify -t coverify test/*.js | node | coverify"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>There is also a <a href="https://npmjs.com/package/covert">covert</a> package that<br />
+simplifies the browserify and coverify setup:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"test"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tape test/*.js"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"coverage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"covert test/*.js"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>To install coverify or covert as a devDependency, run<br />
+<code class="highlighter-rouge">npm install -D coverify</code> or <code class="highlighter-rouge">npm install -D covert</code>.</p>
+
+<h1 id="bundling">bundling</h1>
+
+<p>This section covers bundling in more detail.</p>
+
+<p>Bundling is the step where starting from the entry files, all the source files<br />
+in the dependency graph are walked and packed into a single output file.</p>
+
+<h2 id="saving-bytes">saving bytes</h2>
+
+<p>One of the first things you’ll want to tweak is how the files that npm installs<br />
+are placed on disk to avoid duplicates.</p>
+
+<p>When you do a clean install in a directory, npm will ordinarily factor out<br />
+similar versions into the topmost directory where 2 modules share a dependency.<br />
+However, as you install more packages, new packages will not be factored out<br />
+automatically. You can however use the <code class="highlighter-rouge">npm dedupe</code> command to factor out<br />
+packages for an already-installed set of packages in <code class="highlighter-rouge">node_modules/</code>. You could<br />
+also remove <code class="highlighter-rouge">node_modules/</code> and install from scratch again if problems with<br />
+duplicates persist.</p>
+
+<p>browserify will not include the same exact file twice, but compatible versions<br />
+may differ slightly. browserify is also not version-aware, it will include the<br />
+versions of packages exactly as they are laid out in <code class="highlighter-rouge">node_modules/</code> according<br />
+to the <code class="highlighter-rouge">require()</code> algorithm that node uses.</p>
+
+<p>You can use the <code class="highlighter-rouge">browserify --list</code> and <code class="highlighter-rouge">browserify --deps</code> commands to further<br />
+inspect which files are being included to scan for duplicates.</p>
+
+<h2 id="standalone">standalone</h2>
+
+<p>You can generate UMD bundles with <code class="highlighter-rouge">--standalone</code> that will work in node, the<br />
+browser with globals, and AMD environments.</p>
+
+<p>Just add <code class="highlighter-rouge">--standalone NAME</code> to your bundle command:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify foo.js --standalone xyz &gt; bundle.js
+</code></pre>
+</div>
+
+<p>This command will export the contents of <code class="highlighter-rouge">foo.js</code> under the external module name<br />
+<code class="highlighter-rouge">xyz</code>. If a module system is detected in the host environment, it will be used.<br />
+Otherwise a window global named <code class="highlighter-rouge">xyz</code> will be exported.</p>
+
+<p>You can use dot-syntax to specify a namespace hierarchy:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify foo.js --standalone foo.bar.baz &gt; bundle.js
+</code></pre>
+</div>
+
+<p>If there is already a <code class="highlighter-rouge">foo</code> or a <code class="highlighter-rouge">foo.bar</code> in the host environment in window<br />
+global mode, browserify will attach its exports onto those objects. The AMD and<br />
+<code class="highlighter-rouge">module.exports</code> modules will behave the same.</p>
+
+<p>Note however that standalone only works with a single entry or directly-required<br />
+file.</p>
+
+<h2 id="external-bundles">external bundles</h2>
+
+<h2 id="ignoring-and-excluding">ignoring and excluding</h2>
+
+<p>In browserify parlance, “ignore” means: replace the definition of a module with<br />
+an empty object. “exclude” means: remove a module completely from a dependency graph.</p>
+
+<p>Another way to achieve many of the same goals as ignore and exclude is the<br />
+“browser” field in package.json, which is covered elsewhere in this document.</p>
+
+<h3 id="ignoring">ignoring</h3>
+
+<p>Ignoring is an optimistic strategy designed to stub in an empty definition for<br />
+node-specific modules that are only used in some codepaths. For example, if a<br />
+module requires a library that only works in node but for a specific chunk of<br />
+the code:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'fs'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">path</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'path'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">mkdirp</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'mkdirp'</span><span class="p">);</span>
+
+<span class="nx">exports</span><span class="p">.</span><span class="nx">convert</span> <span class="o">=</span> <span class="nx">convert</span><span class="p">;</span>
+<span class="kd">function</span> <span class="nx">convert</span> <span class="p">(</span><span class="nx">src</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">src</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/beep/g</span><span class="p">,</span> <span class="s1">'boop'</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nx">exports</span><span class="p">.</span><span class="nx">write</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">src</span><span class="p">,</span> <span class="nx">dst</span><span class="p">,</span> <span class="nx">cb</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span><span class="p">(</span><span class="nx">src</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">src</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">cb</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+        <span class="nx">mkdirp</span><span class="p">(</span><span class="nx">path</span><span class="p">.</span><span class="nx">dirname</span><span class="p">(</span><span class="nx">dst</span><span class="p">),</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">cb</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">out</span> <span class="o">=</span> <span class="nx">convert</span><span class="p">(</span><span class="nx">src</span><span class="p">);</span>
+            <span class="nx">fs</span><span class="p">.</span><span class="nx">writeFile</span><span class="p">(</span><span class="nx">dst</span><span class="p">,</span> <span class="nx">out</span><span class="p">,</span> <span class="nx">cb</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+<span class="p">};</span>
+</code></pre>
+</div>
+
+<p>browserify already “ignores” the <code class="highlighter-rouge">'fs'</code> module by returning an empty object, but<br />
+the <code class="highlighter-rouge">.write()</code> function here won’t work in the browser without an extra step like<br />
+a static analysis transform or a runtime storage fs abstraction.</p>
+
+<p>However, if we really want the <code class="highlighter-rouge">convert()</code> function but don’t want to see<br />
+<code class="highlighter-rouge">mkdirp</code> in the final bundle, we can ignore mkdirp with <code class="highlighter-rouge">b.ignore('mkdirp')</code> or<br />
+<code class="highlighter-rouge">browserify --ignore mkdirp</code>. The code will still work in the browser if we<br />
+don’t call <code class="highlighter-rouge">write()</code> because <code class="highlighter-rouge">require('mkdirp')</code> won’t throw an exception, just<br />
+return an empty object.</p>
+
+<p>Generally speaking it’s not a good idea for modules that are primarily<br />
+algorithmic (parsers, formatters) to do IO themselves but these tricks can let<br />
+you use those modules in the browser anyway.</p>
+
+<p>To ignore <code class="highlighter-rouge">foo</code> on the command-line do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>browserify --ignore foo
+</code></pre>
+</div>
+
+<p>To ignore <code class="highlighter-rouge">foo</code> from the api with some bundle instance <code class="highlighter-rouge">b</code> do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">b</span><span class="p">.</span><span class="nx">ignore</span><span class="p">(</span><span class="s1">'foo'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<h3 id="excluding">excluding</h3>
+
+<p>Another related thing we might want is to completely remove a module from the<br />
+output so that <code class="highlighter-rouge">require('modulename')</code> will fail at runtime. This is useful if<br />
+we want to split things up into multiple bundles that will defer in a cascade to<br />
+previously-defined <code class="highlighter-rouge">require()</code> definitions.</p>
+
+<p>For example, if we have a vendored standalone bundle for jquery that we don’t want to appear in<br />
+the primary bundle:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ npm install jquery
+$ browserify -r jquery --standalone jquery &gt; jquery-bundle.js
+</code></pre>
+</div>
+
+<p>then we want to just <code class="highlighter-rouge">require('jquery')</code> in a <code class="highlighter-rouge">main.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">$</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'jquery'</span><span class="p">);</span>
+<span class="nx">$</span><span class="p">(</span><span class="nb">window</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span> <span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">bgColor</span> <span class="o">=</span> <span class="s1">'red'</span> <span class="p">});</span>
+</code></pre>
+</div>
+
+<p>defering to the jquery dist bundle so that we can write:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"jquery-bundle.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"bundle.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre>
+</div>
+
+<p>and not have the jquery definition show up in <code class="highlighter-rouge">bundle.js</code>, then while compiling<br />
+the <code class="highlighter-rouge">main.js</code>, you can <code class="highlighter-rouge">--exclude jquery</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>browserify main.js --exclude jquery &gt; bundle.js
+</code></pre>
+</div>
+
+<p>To exclude <code class="highlighter-rouge">foo</code> on the command-line do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>browserify --exclude foo
+</code></pre>
+</div>
+
+<p>To exclude <code class="highlighter-rouge">foo</code> from the api with some bundle instance <code class="highlighter-rouge">b</code> do:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">b</span><span class="p">.</span><span class="nx">exclude</span><span class="p">(</span><span class="s1">'foo'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<h2 id="browserify-cdn">browserify cdn</h2>
+
+<h1 id="shimming">shimming</h1>
+
+<p>Unfortunately, some packages are not written with node-style commonjs exports.<br />
+For modules that export their functionality with globals or AMD, there are<br />
+packages that can help automatically convert these troublesome packages into<br />
+something that browserify can understand.</p>
+
+<h2 id="browserify-shim">browserify-shim</h2>
+
+<p>One way to automatically convert non-commonjs packages is with<br />
+<a href="https://npmjs.org/package/browserify-shim">browserify-shim</a>.</p>
+
+<p><a href="https://npmjs.org/package/browserify-shim">browserify-shim</a> is loaded as a<br />
+transform and also reads a <code class="highlighter-rouge">"browserify-shim"</code> field from <code class="highlighter-rouge">package.json</code>.</p>
+
+<p>Suppose we need to use a troublesome third-party library we’ve placed in<br />
+<code class="highlighter-rouge">./vendor/foo.js</code> that exports its functionality as a window global called<br />
+<code class="highlighter-rouge">FOO</code>. We can set up our <code class="highlighter-rouge">package.json</code> with:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"browserify"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"transform"</span><span class="p">:</span><span class="w"> </span><span class="s2">"browserify-shim"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"browserify-shim"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"./vendor/foo.js"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FOO"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>and now when we <code class="highlighter-rouge">require('./vendor/foo.js')</code>, we get the <code class="highlighter-rouge">FOO</code> variable that<br />
+<code class="highlighter-rouge">./vendor/foo.js</code> tried to put into the global scope, but that attempt was<br />
+shimmed away into an isolated context to prevent global pollution.</p>
+
+<p>We could even use the <a href="#browser-field">browser field</a> to make <code class="highlighter-rouge">require('foo')</code><br />
+work instead of always needing to use a relative path to load <code class="highlighter-rouge">./vendor/foo.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"browser"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"foo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./vendor/foo.js"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"browserify"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"transform"</span><span class="p">:</span><span class="w"> </span><span class="s2">"browserify-shim"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"browserify-shim"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"foo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FOO"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Now <code class="highlighter-rouge">require('foo')</code> will return the <code class="highlighter-rouge">FOO</code> export that <code class="highlighter-rouge">./vendor/foo.js</code> tried<br />
+to place on the global scope.</p>
+
+<h1 id="partitioning">partitioning</h1>
+
+<p>Most of the time, the default method of bundling where one or more entry files<br />
+map to a single bundled output file is perfectly adequate, particularly<br />
+considering that bundling minimizes latency down to a single http request to<br />
+fetch all the javascript assets.</p>
+
+<p>However, sometimes this initial penalty is too high for parts of a website that<br />
+are rarely or never used by most visitors such as an admin panel.<br />
+This partitioning can be accomplished with the technique covered in the<br />
+<a href="#ignoring-and-excluding">ignoring and excluding</a> section, but factoring out<br />
+shared dependencies manually can be tedious for a large and fluid dependency<br />
+graph.</p>
+
+<p>Luckily, there are plugins that can automatically factor browserify output into<br />
+separate bundle payloads.</p>
+
+<h2 id="factor-bundle">factor-bundle</h2>
+
+<p><a href="https://www.npmjs.org/package/factor-bundle">factor-bundle</a> splits browserify<br />
+output into multiple bundle targets based on entry-point. For each entry-point,<br />
+an entry-specific output file is built. Files that are needed by two or more of<br />
+the entry files get factored out into a common bundle.</p>
+
+<p>For example, suppose we have 2 pages: /x and /y. Each page has an entry point,<br />
+<code class="highlighter-rouge">x.js</code> for /x and <code class="highlighter-rouge">y.js</code> for /y.</p>
+
+<p>We then generate page-specific bundles <code class="highlighter-rouge">bundle/x.js</code> and <code class="highlighter-rouge">bundle/y.js</code> with<br />
+<code class="highlighter-rouge">bundle/common.js</code> containing the dependencies shared by both <code class="highlighter-rouge">x.js</code> and <code class="highlighter-rouge">y.js</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>browserify x.js y.js -p [ factor-bundle -o bundle/x.js -o bundle/y.js ] \
+  -o bundle/common.js
+</code></pre>
+</div>
+
+<p>Now we can simply put 2 script tags on each page. On /x we would put:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"/bundle/common.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"/bundle/x.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre>
+</div>
+
+<p>and on page /y we would put:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"/bundle/common.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"/bundle/y.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre>
+</div>
+
+<p>You could also load the bundles asynchronously with ajax or by inserting a<br />
+script tag into the page dynamically but factor-bundle only concerns itself with<br />
+generating the bundles, not with loading them.</p>
+
+<h2 id="partition-bundle">partition-bundle</h2>
+
+<p><a href="https://www.npmjs.org/package/partition-bundle">partition-bundle</a> handles<br />
+splitting output into multiple bundles like factor-bundle, but includes a<br />
+built-in loader using a special <code class="highlighter-rouge">loadjs()</code> function.</p>
+
+<p>partition-bundle takes a json file that maps source files to bundle files:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"entry.js"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"./a"</span><span class="p">],</span><span class="w">
+  </span><span class="nt">"common.js"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"./b"</span><span class="p">],</span><span class="w">
+  </span><span class="nt">"common/extra.js"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"./e"</span><span class="p">,</span><span class="w"> </span><span class="s2">"./d"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Then partition-bundle is loaded as a plugin and the mapping file, output<br />
+directory, and destination url path (required for dynamic loading) are passed<br />
+in:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>browserify -p [ partition-bundle --map mapping.json \
+  --output output/directory --url directory ]
+</code></pre>
+</div>
+
+<p>Now you can add:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"entry.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre>
+</div>
+
+<p>to your page to load the entry file. From inside the entry file, you can<br />
+dynamically load other bundles with a <code class="highlighter-rouge">loadjs()</code> function:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">a</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'click'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">loadjs</span><span class="p">([</span><span class="s1">'./e'</span><span class="p">,</span> <span class="s1">'./d'</span><span class="p">],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">,</span> <span class="nx">d</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">e</span><span class="p">,</span> <span class="nx">d</span><span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre>
+</div>
+
+<h1 id="compiler-pipeline">compiler pipeline</h1>
+
+<p>Since version 5, browserify exposes its compiler pipeline as a<br />
+<a href="https://www.npmjs.org/package/labeled-stream-splicer">labeled-stream-splicer</a>.</p>
+
+<p>This means that transformations can be added or removed directly into the<br />
+internal pipeline. This pipeline provides a clean interface for advanced<br />
+customizations such as watching files or factoring bundles from multiple entry<br />
+points.</p>
+
+<p>For example, we could replace the built-in integer-based labeling mechanism with<br />
+hashed IDs by first injecting a pass-through transform after the “deps” have<br />
+been calculated to hash source files. Then we can use the hashes we captured to<br />
+create our own custom labeler, replacing the built-in “label” transform:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">browserify</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'browserify'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">through</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'through2'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">shasum</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'shasum'</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">b</span> <span class="o">=</span> <span class="nx">browserify</span><span class="p">(</span><span class="s1">'./main.js'</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">hashes</span> <span class="o">=</span> <span class="p">{};</span>
+<span class="kd">var</span> <span class="nx">hasher</span> <span class="o">=</span> <span class="nx">through</span><span class="p">.</span><span class="nx">obj</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">row</span><span class="p">,</span> <span class="nx">enc</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">hashes</span><span class="p">[</span><span class="nx">row</span><span class="p">.</span><span class="nx">id</span><span class="p">]</span> <span class="o">=</span> <span class="nx">shasum</span><span class="p">(</span><span class="nx">row</span><span class="p">.</span><span class="nx">source</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">row</span><span class="p">);</span>
+    <span class="nx">next</span><span class="p">();</span>
+<span class="p">});</span>
+<span class="nx">b</span><span class="p">.</span><span class="nx">pipeline</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'deps'</span><span class="p">).</span><span class="nx">push</span><span class="p">(</span><span class="nx">hasher</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">labeler</span> <span class="o">=</span> <span class="nx">through</span><span class="p">.</span><span class="nx">obj</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">row</span><span class="p">,</span> <span class="nx">enc</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">row</span><span class="p">.</span><span class="nx">id</span> <span class="o">=</span> <span class="nx">hashes</span><span class="p">[</span><span class="nx">row</span><span class="p">.</span><span class="nx">id</span><span class="p">];</span>
+
+    <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">row</span><span class="p">.</span><span class="nx">deps</span><span class="p">).</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">row</span><span class="p">.</span><span class="nx">deps</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">hashes</span><span class="p">[</span><span class="nx">row</span><span class="p">.</span><span class="nx">deps</span><span class="p">[</span><span class="nx">key</span><span class="p">]];</span>
+    <span class="p">});</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">row</span><span class="p">);</span>
+    <span class="nx">next</span><span class="p">();</span>
+<span class="p">});</span>
+<span class="nx">b</span><span class="p">.</span><span class="nx">pipeline</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'label'</span><span class="p">).</span><span class="nx">splice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">labeler</span><span class="p">);</span>
+
+<span class="nx">b</span><span class="p">.</span><span class="nx">bundle</span><span class="p">().</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>Now instead of getting integers for the IDs in the output format, we get file<br />
+hashes:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ node bundle.js
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&amp;&amp;require;if(!u&amp;&amp;a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&amp;&amp;require;for(var o=0;o&lt;r.length;o++)s(r[o]);return s})({"5f0a0e3a143f2356582f58a70f385f4bde44f04b":[function(require,module,exports){
+var foo = require('./foo.js');
+var bar = require('./bar.js');
+
+console.log(foo(3) + bar(4));
+
+},{"./bar.js":"cba5983117ae1d6699d85fc4d54eb589d758f12b","./foo.js":"736100869ec2e44f7cfcf0dc6554b055e117c53c"}],"cba5983117ae1d6699d85fc4d54eb589d758f12b":[function(require,module,exports){
+module.exports = function (n) { return n * 100 };
+
+},{}],"736100869ec2e44f7cfcf0dc6554b055e117c53c":[function(require,module,exports){
+module.exports = function (n) { return n + 1 };
+
+},{}]},{},["5f0a0e3a143f2356582f58a70f385f4bde44f04b"]);
+</code></pre>
+</div>
+
+<p>Note that the built-in labeler does other things like checking for the external,<br />
+excluded configurations so replacing it will be difficult if you depend on those<br />
+features. This example just serves as an example for the kinds of things you can<br />
+do by hacking into the compiler pipeline.</p>
+
+<h2 id="build-your-own-browserify">build your own browserify</h2>
+
+<h2 id="labeled-phases">labeled phases</h2>
+
+<p>Each phase in the browserify pipeline has a label that you can hook onto. Fetch<br />
+a label with <code class="highlighter-rouge">.get(name)</code> to return a<br />
+<a href="https://npmjs.org/package/labeled-stream-splicer">labeled-stream-splicer</a><br />
+handle at the appropriate label. Once you have a handle, you can <code class="highlighter-rouge">.push()</code>,<br />
+<code class="highlighter-rouge">.pop()</code>, <code class="highlighter-rouge">.shift()</code>, <code class="highlighter-rouge">.unshift()</code>, and <code class="highlighter-rouge">.splice()</code> your own transform streams<br />
+into the pipeline or remove existing transform streams.</p>
+
+<h3 id="recorder">recorder</h3>
+
+<p>The recorder is used to capture the inputs sent to the <code class="highlighter-rouge">deps</code> phase so that they<br />
+can be replayed on subsequent calls to <code class="highlighter-rouge">.bundle()</code>. Unlike in previous releases,<br />
+v5 can generate bundle output multiple times. This is very handy for tools like<br />
+watchify that re-bundle when a file has changed.</p>
+
+<h3 id="deps">deps</h3>
+
+<p>The <code class="highlighter-rouge">deps</code> phase expects entry and <code class="highlighter-rouge">require()</code> files or objects as input and<br />
+calls <a href="https://npmjs.org/package/module-deps">module-deps</a> to generate a stream<br />
+of json output for all of the files in the dependency graph.</p>
+
+<p>module-deps is invoked with some customizations here such as:</p>
+
+<ul>
+  <li>setting up the browserify transform key for package.json</li>
+  <li>filtering out external, excluded, and ignored files</li>
+  <li>setting the default extensions for <code class="highlighter-rouge">.js</code> and <code class="highlighter-rouge">.json</code> plus options configured<br />
+in the <code class="highlighter-rouge">opts.extensions</code> parameter in the browserify constructor</li>
+  <li>configuring a global <a href="#insert-module-globals">insert-module-globals</a><br />
+transform to detect and implement <code class="highlighter-rouge">process</code>, <code class="highlighter-rouge">Buffer</code>, <code class="highlighter-rouge">global</code>, <code class="highlighter-rouge">__dirname</code>,<br />
+and <code class="highlighter-rouge">__filename</code></li>
+  <li>setting up the list of node builtins which are shimmed by browserify</li>
+</ul>
+
+<h3 id="json">json</h3>
+
+<p>This transform adds <code class="highlighter-rouge">module.exports=</code> in front of files with a <code class="highlighter-rouge">.json</code><br />
+extension.</p>
+
+<h3 id="unbom">unbom</h3>
+
+<p>This transform removes byte order markers, which are sometimes used by windows<br />
+text editors to indicate the endianness of files. These markers are ignored by<br />
+node, so browserify ignores them for compatibility.</p>
+
+<h3 id="syntax">syntax</h3>
+
+<p>This transform checks for syntax errors using the<br />
+<a href="https://npmjs.org/package/syntax-error">syntax-error</a> package to give<br />
+informative syntax errors with line and column numbers.</p>
+
+<h3 id="sort">sort</h3>
+
+<p>This phase uses <a href="https://www.npmjs.org/package/deps-sort">deps-sort</a> to sort<br />
+the rows written to it in order to make the bundles deterministic.</p>
+
+<h3 id="dedupe">dedupe</h3>
+
+<p>The transform at this phase uses dedupe information provided by<br />
+<a href="https://www.npmjs.org/package/deps-sort">deps-sort</a> in the <code class="highlighter-rouge">sort</code> phase to<br />
+remove files that have duplicate contents.</p>
+
+<h3 id="label">label</h3>
+
+<p>This phase converts file-based IDs which might expose system path information<br />
+and inflate the bundle size into integer-based IDs.</p>
+
+<p>The <code class="highlighter-rouge">label</code> phase will also normalize path names based on the <code class="highlighter-rouge">opts.basedir</code> or<br />
+<code class="highlighter-rouge">process.cwd()</code> to avoid exposing system path information.</p>
+
+<h3 id="emit-deps">emit-deps</h3>
+
+<p>This phase emits a <code class="highlighter-rouge">'dep'</code> event for each row after the <code class="highlighter-rouge">label</code> phase.</p>
+
+<h3 id="debug">debug</h3>
+
+<p>If <code class="highlighter-rouge">opts.debug</code> was given to the <code class="highlighter-rouge">browserify()</code> constructor, this phase will<br />
+transform input to add <code class="highlighter-rouge">sourceRoot</code> and <code class="highlighter-rouge">sourceFile</code> properties which are used<br />
+by <a href="https://npmjs.org/package/browser-pack">browser-pack</a> in the <code class="highlighter-rouge">pack</code> phase.</p>
+
+<h3 id="pack">pack</h3>
+
+<p>This phase converts rows with <code class="highlighter-rouge">'id'</code> and <code class="highlighter-rouge">'source'</code> parameters as input (among<br />
+others) and generates the concatenated javascript bundle as output<br />
+using <a href="https://npmjs.org/package/browser-pack">browser-pack</a>.</p>
+
+<h3 id="wrap">wrap</h3>
+
+<p>This is an empty phase at the end where you can easily tack on custom post<br />
+transformations without interfering with existing mechanics.</p>
+
+<h2 id="browser-unpack">browser-unpack</h2>
+
+<p><a href="https://npmjs.org/package/browser-unpack">browser-unpack</a> converts a compiled<br />
+bundle file back into a format very similar to the output of<br />
+<a href="https://npmjs.org/package/module-deps">module-deps</a>.</p>
+
+<p>This is very handy if you need to inspect or transform a bundle that has already<br />
+been compiled.</p>
+
+<p>For example:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">$</span> <span class="nx">browserify</span> <span class="nx">src</span><span class="o">/</span><span class="nx">main</span><span class="p">.</span><span class="nx">js</span> <span class="o">|</span> <span class="nx">browser</span><span class="o">-</span><span class="nx">unpack</span>
+<span class="p">[</span>
+<span class="p">{</span><span class="s2">"id"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"source"</span><span class="p">:</span><span class="s2">"module.exports = function (n) { return n * 100 };"</span><span class="p">,</span><span class="s2">"deps"</span><span class="p">:{}}</span>
+<span class="p">,</span>
+<span class="p">{</span><span class="s2">"id"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s2">"source"</span><span class="p">:</span><span class="s2">"module.exports = function (n) { return n + 1 };"</span><span class="p">,</span><span class="s2">"deps"</span><span class="p">:{}}</span>
+<span class="p">,</span>
+<span class="p">{</span><span class="s2">"id"</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s2">"source"</span><span class="p">:</span><span class="s2">"var foo = require('./foo.js');\nvar bar = require('./bar.js');\n\nconsole.log(foo(3) + bar(4));"</span><span class="p">,</span><span class="s2">"deps"</span><span class="p">:{</span><span class="s2">"./bar.js"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"./foo.js"</span><span class="p">:</span><span class="mi">2</span><span class="p">},</span><span class="s2">"entry"</span><span class="p">:</span><span class="kc">true</span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre>
+</div>
+
+<p>This decomposition is needed by tools such as<br />
+<a href="https://www.npmjs.org/package/factor-bundle">factor-bundle</a><br />
+and <a href="https://www.npmjs.org/package/bundle-collapser">bundle-collapser</a>.</p>
+
+<h1 id="plugins">plugins</h1>
+
+<p>When loaded, plugins have access to the browserify instance itself.</p>
+
+<h2 id="using-plugins">using plugins</h2>
+
+<p>Plugins should be used sparingly and only in cases where a transform or global<br />
+transform is not powerful enough to perform the desired functionality.</p>
+
+<p>You can load a plugin with <code class="highlighter-rouge">-p</code> on the command-line:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify main.js -p foo &gt; bundle.js
+</code></pre>
+</div>
+
+<p>would load a plugin called <code class="highlighter-rouge">foo</code>. <code class="highlighter-rouge">foo</code> is resolved with <code class="highlighter-rouge">require()</code>, so to load<br />
+a local file as a plugin, preface the path with a <code class="highlighter-rouge">./</code> and to load a plugin from<br />
+<code class="highlighter-rouge">node_modules/foo</code>, just do <code class="highlighter-rouge">-p foo</code>.</p>
+
+<p>You can pass options to plugins with square brackets around the entire plugin<br />
+expression, including the plugin name as the first argument:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ browserify one.js two.js \
+  -p [ factor-bundle -o bundle/one.js -o bundle/two.js ] \
+  &gt; common.js
+</code></pre>
+</div>
+
+<p>This command-line syntax is parsed by the<br />
+<a href="https://npmjs.org/package/subarg">subarg</a> package.</p>
+
+<p>To see a list of browserify plugins, browse npm for packages with the keyword<br />
+“browserify-plugin”: http://npmjs.org/browse/keyword/browserify-plugin</p>
+
+<h2 id="authoring-plugins">authoring plugins</h2>
+
+<p>To author a plugin, write a package that exports a single function that will<br />
+receive a bundle instance and options object as arguments:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// example plugin</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">b</span><span class="p">,</span> <span class="nx">opts</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>Plugins operate on the bundle instance <code class="highlighter-rouge">b</code> directly by listening for events or<br />
+splicing transforms into the pipeline. Plugins should not overwrite bundle<br />
+methods unless they have a very good reason.</p>
+</div>
+  </div>
+
+  <footer></footer>
+
+</article>
+<script src="/assets/js/anchor.min.js"></script>
+<script src="/assets/js/jquery.min.js"></script>
+<!--
+<script src="/assets/js/clipboard.min.js"></script>
+-->
+
+<script>
+  anchors.options = {
+    placement: 'left'
+  };
+  anchors.add('.page-content h1, .page-content h2, .page-content h3, .page-content h4, .page-content h5, .page-content h6');
+
+  /*
+  $('pre.highlight').after($('<button class="btn-copy">Copy</button>'));
+  var clipboard = new Clipboard('.btn-copy', {
+    text: function(trigger) {
+      return $(trigger).prev().text();
+    }
+  });
+  */
+
+  (function() {
+    var $toc = $('#toc'),
+      $nav = $('<ul>'),
+      track = [];
+
+    function getParentNav(level) {
+      var i = track.length,
+        $el = $('<li>');
+      if (!track.length) {
+        return $el.appendTo($nav);
+      }
+      while (i--) {
+        var last = track[i];
+        if (level === last.level) {
+          return $el.appendTo(last.$el.closest('ul'));
+        }
+        if (level - last.level == 1) {
+          return $el.appendTo($('<ul>').appendTo(last.$el));
+        }
+      }
+    }
+
+    function generateTableOfContents(els) {
+      var test, href;
+      for (var i = 0; i < els.length; i++) {
+        test = els[i].textContent;
+        href = els[i].querySelector('.anchorjs-link').getAttribute('href');
+        addNavItem(href, test, els[i].tagName.slice(1));
+      }
+    }
+
+    function addNavItem(href, text, level) {
+      var $a = $('<a href="' + href + '">' + text + '</a>'),
+        $el = getParentNav(level);
+      if (!$el) {
+        return;
+      }
+      $el.append($a);
+      track.push({
+        level: level,
+        $el: $el
+      });
+    }
+
+    generateTableOfContents(anchors.elements);
+    $nav.appendTo($toc);
+  })();
+
+  $(document.body).on('keydown', function(e) {
+    if (e.altKey && e.keyCode == 36) {
+      location.href = '/';
+      e.preventDefault();
+    }
+  });
+</script>
+
+
+  </body>
+</html>

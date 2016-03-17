@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>ECMAScript 6</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+  <body>
+    <article class="page">
+  <header class="page-header">
+    <div class="container">
+      <h1 class="page-title">ECMAScript 6</h1>
+      <p class="page-tags">
+        
+        <span class="tag">JavaScript</span>
+        
+        <span class="tag">ES6</span>
+        
+      </p>
+      <p class="page-meta">
+        <time datetime="1970-01-01T00:00:00+08:00">Jan 1, 1970</time>
+      </p>
+    </div>
+  </header>
+
+  
+  <div class="container">
+    <h1>Table Of Contents</h1>
+    <div id="toc"></div>
+  </div>
+  
+
+  <div class="page-content">
+    <div class="container"><h1 id="introduction">Introduction</h1>
+<p>ECMAScript 6, also known as ECMAScript 2015, is the latest version of the ECMAScript standard.  ES6 is a significant update to the language, and the first update to the language since ES5 was standardized in 2009. Implementation of these features in major JavaScript engines is <a href="http://kangax.github.io/es5-compat-table/es6/">underway now</a>.</p>
+
+<p>See the <a href="http://www.ecma-international.org/ecma-262/6.0/">ES6 standard</a> for full specification of the ECMAScript 6 language.</p>
+
+<p>ES6 includes the following new features:</p>
+
+<ul>
+  <li><a href="#arrows">arrows</a></li>
+  <li><a href="#classes">classes</a></li>
+  <li><a href="#enhanced-object-literals">enhanced object literals</a></li>
+  <li><a href="#template-strings">template strings</a></li>
+  <li><a href="#destructuring">destructuring</a></li>
+  <li><a href="#default--rest--spread">default + rest + spread</a></li>
+  <li><a href="#let--const">let + const</a></li>
+  <li><a href="#iterators--forof">iterators + for..of</a></li>
+  <li><a href="#generators">generators</a></li>
+  <li><a href="#unicode">unicode</a></li>
+  <li><a href="#modules">modules</a></li>
+  <li><a href="#module-loaders">module loaders</a></li>
+  <li><a href="#map--set--weakmap--weakset">map + set + weakmap + weakset</a></li>
+  <li><a href="#proxies">proxies</a></li>
+  <li><a href="#symbols">symbols</a></li>
+  <li><a href="#subclassable-built-ins">subclassable built-ins</a></li>
+  <li><a href="#promises">promises</a></li>
+  <li><a href="#math--number--string--array--object-apis">math + number + string + array + object APIs</a></li>
+  <li><a href="#binary-and-octal-literals">binary and octal literals</a></li>
+  <li><a href="#reflect-api">reflect api</a></li>
+  <li><a href="#tail-calls">tail calls</a></li>
+</ul>
+
+<h1 id="ecmascript-6-features">ECMAScript 6 Features</h1>
+
+<h2 id="arrows">Arrows</h2>
+<p>Arrows are a function shorthand using the <code class="highlighter-rouge">=&gt;</code> syntax.  They are syntactically similar to the related feature in C#, Java 8 and CoffeeScript.  They support both statement block bodies as well as expression bodies which return the value of the expression.  Unlike functions, arrows share the same lexical <code class="highlighter-rouge">this</code> as their surrounding code.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// Expression bodies</span>
+<span class="kd">var</span> <span class="nx">odds</span> <span class="o">=</span> <span class="nx">evens</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">v</span> <span class="o">=&gt;</span> <span class="nx">v</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">nums</span> <span class="o">=</span> <span class="nx">evens</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">v</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">v</span> <span class="o">+</span> <span class="nx">i</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">pairs</span> <span class="o">=</span> <span class="nx">evens</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">v</span> <span class="o">=&gt;</span> <span class="p">({</span><span class="na">even</span><span class="p">:</span> <span class="nx">v</span><span class="p">,</span> <span class="na">odd</span><span class="p">:</span> <span class="nx">v</span> <span class="o">+</span> <span class="mi">1</span><span class="p">}));</span>
+
+<span class="c1">// Statement bodies</span>
+<span class="nx">nums</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">v</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">v</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="nx">fives</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">v</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// Lexical this</span>
+<span class="kd">var</span> <span class="nx">bob</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">_name</span><span class="p">:</span> <span class="s2">"Bob"</span><span class="p">,</span>
+  <span class="na">_friends</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="nx">printFriends</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">_friends</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">f</span> <span class="o">=&gt;</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_name</span> <span class="o">+</span> <span class="s2">" knows "</span> <span class="o">+</span> <span class="nx">f</span><span class="p">));</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<h2 id="classes">Classes</h2>
+<p>ES6 classes are a simple sugar over the prototype-based OO pattern.  Having a single convenient declarative form makes class patterns easier to use, and encourages interoperability.  Classes support prototype-based inheritance, super calls, instance and static methods and constructors.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kr">class</span> <span class="nx">SkinnedMesh</span> <span class="kr">extends</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Mesh</span> <span class="p">{</span>
+  <span class="nx">constructor</span><span class="p">(</span><span class="nx">geometry</span><span class="p">,</span> <span class="nx">materials</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kr">super</span><span class="p">(</span><span class="nx">geometry</span><span class="p">,</span> <span class="nx">materials</span><span class="p">);</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">idMatrix</span> <span class="o">=</span> <span class="nx">SkinnedMesh</span><span class="p">.</span><span class="nx">defaultMatrix</span><span class="p">();</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">bones</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">boneMatrices</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="c1">//...</span>
+  <span class="p">}</span>
+  <span class="nx">update</span><span class="p">(</span><span class="nx">camera</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//...</span>
+    <span class="kr">super</span><span class="p">.</span><span class="nx">update</span><span class="p">();</span>
+  <span class="p">}</span>
+  <span class="nx">get</span> <span class="nx">boneCount</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">bones</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="nx">set</span> <span class="nx">matrixType</span><span class="p">(</span><span class="nx">matrixType</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">idMatrix</span> <span class="o">=</span> <span class="nx">SkinnedMesh</span><span class="p">[</span><span class="nx">matrixType</span><span class="p">]();</span>
+  <span class="p">}</span>
+  <span class="kr">static</span> <span class="nx">defaultMatrix</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Matrix4</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<h2 id="enhanced-object-literals">Enhanced Object Literals</h2>
+<p>Object literals are extended to support setting the prototype at construction, shorthand for <code class="highlighter-rouge">foo: foo</code> assignments, defining methods, making super calls, and computing property names with expressions.  Together, these also bring object literals and class declarations closer together, and let object-based design benefit from some of the same conveniences.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1">// __proto__</span>
+    <span class="na">__proto__</span><span class="p">:</span> <span class="nx">theProtoObj</span><span class="p">,</span>
+    <span class="c1">// Shorthand for ‘handler: handler’</span>
+    <span class="nx">handler</span><span class="p">,</span>
+    <span class="c1">// Methods</span>
+    <span class="nx">toString</span><span class="p">()</span> <span class="p">{</span>
+     <span class="c1">// Super calls</span>
+     <span class="k">return</span> <span class="s2">"d "</span> <span class="o">+</span> <span class="kr">super</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
+    <span class="p">},</span>
+    <span class="c1">// Computed (dynamic) property names</span>
+    <span class="p">[</span> <span class="s1">'prop_'</span> <span class="o">+</span> <span class="p">(()</span> <span class="o">=&gt;</span> <span class="mi">42</span><span class="p">)()</span> <span class="p">]:</span> <span class="mi">42</span>
+<span class="p">};</span>
+</code></pre>
+</div>
+
+<h2 id="template-strings">Template Strings</h2>
+<p>Template strings provide syntactic sugar for constructing strings.  This is similar to string interpolation features in Perl, Python and more.  Optionally, a tag can be added to allow the string construction to be customized, avoiding injection attacks or constructing higher level data structures from string contents.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// Basic literal string creation</span>
+<span class="err">`</span><span class="nx">In</span> <span class="nx">JavaScript</span> <span class="s1">'\n'</span> <span class="nx">is</span> <span class="nx">a</span> <span class="nx">line</span><span class="o">-</span><span class="nx">feed</span><span class="p">.</span><span class="err">`</span>
+
+<span class="c1">// Multiline strings</span>
+<span class="err">`</span><span class="nx">In</span> <span class="nx">JavaScript</span> <span class="k">this</span> <span class="nx">is</span>
+ <span class="nx">not</span> <span class="nx">legal</span><span class="p">.</span><span class="err">`</span>
+
+<span class="c1">// String interpolation</span>
+<span class="kd">var</span> <span class="nx">name</span> <span class="o">=</span> <span class="s2">"Bob"</span><span class="p">,</span> <span class="nx">time</span> <span class="o">=</span> <span class="s2">"today"</span><span class="p">;</span>
+<span class="err">`</span><span class="nx">Hello</span> <span class="nx">$</span><span class="p">{</span><span class="nx">name</span><span class="p">},</span> <span class="nx">how</span> <span class="nx">are</span> <span class="nx">you</span> <span class="nx">$</span><span class="p">{</span><span class="nx">time</span><span class="p">}?</span><span class="err">`</span>
+
+<span class="c1">// Construct an HTTP request prefix is used to interpret the replacements and construction</span>
+<span class="nx">POST</span><span class="err">`</span><span class="nx">http</span><span class="p">:</span><span class="c1">//foo.org/bar?a=${a}&amp;b=${b}</span>
+     <span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="err">:</span> <span class="nx">application</span><span class="o">/</span><span class="nx">json</span>
+     <span class="nx">X</span><span class="o">-</span><span class="nx">Credentials</span><span class="err">:</span> <span class="nx">$</span><span class="p">{</span><span class="nx">credentials</span><span class="p">}</span>
+     <span class="p">{</span> <span class="s2">"foo"</span><span class="err">:</span> <span class="nx">$</span><span class="p">{</span><span class="nx">foo</span><span class="p">},</span>
+       <span class="s2">"bar"</span><span class="err">:</span> <span class="nx">$</span><span class="p">{</span><span class="nx">bar</span><span class="p">}}</span><span class="err">`</span><span class="p">(</span><span class="nx">myOnReadyStateChangeHandler</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<h2 id="destructuring">Destructuring</h2>
+<p>Destructuring allows binding using pattern matching, with support for matching arrays and objects.  Destructuring is fail-soft, similar to standard object lookup <code class="highlighter-rouge">foo["bar"]</code>, producing <code class="highlighter-rouge">undefined</code> values when not found.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// list matching</span>
+<span class="kd">var</span> <span class="p">[</span><span class="nx">a</span><span class="p">,</span> <span class="p">,</span> <span class="nx">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">];</span>
+
+<span class="c1">// object matching</span>
+<span class="kd">var</span> <span class="p">{</span> <span class="na">op</span><span class="p">:</span> <span class="nx">a</span><span class="p">,</span> <span class="na">lhs</span><span class="p">:</span> <span class="p">{</span> <span class="na">op</span><span class="p">:</span> <span class="nx">b</span> <span class="p">},</span> <span class="na">rhs</span><span class="p">:</span> <span class="nx">c</span> <span class="p">}</span>
+       <span class="o">=</span> <span class="nx">getASTNode</span><span class="p">()</span>
+
+<span class="c1">// object matching shorthand</span>
+<span class="c1">// binds `op`, `lhs` and `rhs` in scope</span>
+<span class="kd">var</span> <span class="p">{</span><span class="nx">op</span><span class="p">,</span> <span class="nx">lhs</span><span class="p">,</span> <span class="nx">rhs</span><span class="p">}</span> <span class="o">=</span> <span class="nx">getASTNode</span><span class="p">()</span>
+
+<span class="c1">// Can be used in parameter position</span>
+<span class="kd">function</span> <span class="nx">g</span><span class="p">({</span><span class="na">name</span><span class="p">:</span> <span class="nx">x</span><span class="p">})</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">x</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nx">g</span><span class="p">({</span><span class="na">name</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+
+<span class="c1">// Fail-soft destructuring</span>
+<span class="kd">var</span> <span class="p">[</span><span class="nx">a</span><span class="p">]</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="nx">a</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">;</span>
+
+<span class="c1">// Fail-soft destructuring with defaults</span>
+<span class="kd">var</span> <span class="p">[</span><span class="nx">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="nx">a</span> <span class="o">===</span> <span class="mi">1</span><span class="p">;</span>
+</code></pre>
+</div>
+
+<h2 id="default--rest--spread">Default + Rest + Spread</h2>
+<p>Callee-evaluated default parameter values.  Turn an array into consecutive arguments in a function call.  Bind trailing parameters to an array.  Rest replaces the need for <code class="highlighter-rouge">arguments</code> and addresses common cases more directly.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">f</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// y is 12 if not passed (or passed as undefined)</span>
+  <span class="k">return</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nx">f</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">==</span> <span class="mi">15</span>
+</code></pre>
+</div>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">f</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="p">...</span><span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// y is an Array</span>
+  <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">y</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nx">f</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"hello"</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span>
+</code></pre>
+</div>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">f</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">,</span> <span class="nx">z</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span> <span class="o">+</span> <span class="nx">z</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// Pass each elem of array as argument</span>
+<span class="nx">f</span><span class="p">(...[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span> <span class="o">==</span> <span class="mi">6</span>
+</code></pre>
+</div>
+
+<h2 id="let--const">Let + Const</h2>
+<p>Block-scoped binding constructs.  <code class="highlighter-rouge">let</code> is the new <code class="highlighter-rouge">var</code>.  <code class="highlighter-rouge">const</code> is single-assignment.  Static restrictions prevent use before assignment.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">f</span><span class="p">()</span> <span class="p">{</span>
+  <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">x</span><span class="p">;</span>
+    <span class="p">{</span>
+      <span class="c1">// okay, block scoped name</span>
+      <span class="kr">const</span> <span class="nx">x</span> <span class="o">=</span> <span class="s2">"sneaky"</span><span class="p">;</span>
+      <span class="c1">// error, const</span>
+      <span class="nx">x</span> <span class="o">=</span> <span class="s2">"foo"</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">// error, already declared in block</span>
+    <span class="kd">let</span> <span class="nx">x</span> <span class="o">=</span> <span class="s2">"inner"</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<h2 id="iterators--forof">Iterators + For..Of</h2>
+<p>Iterator objects enable custom iteration like CLR IEnumerable or Java Iterable.  Generalize <code class="highlighter-rouge">for..in</code> to custom iterator-based iteration with <code class="highlighter-rouge">for..of</code>.  Don’t require realizing an array, enabling lazy design patterns like LINQ.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">fibonacci</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="p">[</span><span class="nx">Symbol</span><span class="p">.</span><span class="nx">iterator</span><span class="p">]()</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">pre</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">cur</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="nx">next</span><span class="p">()</span> <span class="p">{</span>
+        <span class="p">[</span><span class="nx">pre</span><span class="p">,</span> <span class="nx">cur</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nx">cur</span><span class="p">,</span> <span class="nx">pre</span> <span class="o">+</span> <span class="nx">cur</span><span class="p">];</span>
+        <span class="k">return</span> <span class="p">{</span> <span class="na">done</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span> <span class="na">value</span><span class="p">:</span> <span class="nx">cur</span> <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">n</span> <span class="nx">of</span> <span class="nx">fibonacci</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// truncate the sequence at 1000</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">n</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">n</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>Iteration is based on these duck-typed interfaces (using <a href="http://typescriptlang.org">TypeScript</a> type syntax for exposition only):<br />
+<code class="highlighter-rouge">TypeScript
+interface IteratorResult {
+  done: boolean;
+  value: any;
+}
+interface Iterator {
+  next(): IteratorResult;
+}
+interface Iterable {
+  [Symbol.iterator](): Iterator
+}
+</code></p>
+
+<h2 id="generators">Generators</h2>
+<p>Generators simplify iterator-authoring using <code class="highlighter-rouge">function*</code> and <code class="highlighter-rouge">yield</code>.  A function declared as function* returns a Generator instance.  Generators are subtypes of iterators which include additional  <code class="highlighter-rouge">next</code> and <code class="highlighter-rouge">throw</code>.  These enable values to flow back into the generator, so <code class="highlighter-rouge">yield</code> is an expression form which returns a value (or throws).</p>
+
+<p>Note: Can also be used to enable ‘await’-like async programming, see also ES7 <code class="highlighter-rouge">await</code> proposal.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">fibonacci</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="p">[</span><span class="nx">Symbol</span><span class="p">.</span><span class="nx">iterator</span><span class="p">]:</span> <span class="kd">function</span><span class="o">*</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">pre</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">cur</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(;;)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">temp</span> <span class="o">=</span> <span class="nx">pre</span><span class="p">;</span>
+      <span class="nx">pre</span> <span class="o">=</span> <span class="nx">cur</span><span class="p">;</span>
+      <span class="nx">cur</span> <span class="o">+=</span> <span class="nx">temp</span><span class="p">;</span>
+      <span class="k">yield</span> <span class="nx">cur</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">n</span> <span class="nx">of</span> <span class="nx">fibonacci</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// truncate the sequence at 1000</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">n</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">n</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>The generator interface is (using <a href="http://typescriptlang.org">TypeScript</a> type syntax for exposition only):</p>
+
+<pre><code class="language-TypeScript">interface Generator extends Iterator {
+    next(value?: any): IteratorResult;
+    throw(exception: any);
+}
+</code></pre>
+
+<h2 id="unicode">Unicode</h2>
+<p>Non-breaking additions to support full Unicode, including new Unicode literal form in strings and new RegExp <code class="highlighter-rouge">u</code> mode to handle code points, as well as new APIs to process strings at the 21bit code points level.  These additions support building global apps in JavaScript.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// same as ES5.1</span>
+<span class="s2">"𠮷"</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">2</span>
+
+<span class="c1">// new RegExp behaviour, opt-in ‘u’</span>
+<span class="s2">"𠮷"</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/./</span><span class="nx">u</span><span class="p">)[</span><span class="mi">0</span><span class="p">].</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">2</span>
+
+<span class="c1">// new form</span>
+<span class="s2">"\u{20BB7}"</span><span class="o">==</span><span class="s2">"𠮷"</span><span class="o">==</span><span class="s2">"\uD842\uDFB7"</span>
+
+<span class="c1">// new String ops</span>
+<span class="s2">"𠮷"</span><span class="p">.</span><span class="nx">codePointAt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x20BB7</span>
+
+<span class="c1">// for-of iterates code points</span>
+<span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">c</span> <span class="nx">of</span> <span class="s2">"𠮷"</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">c</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<h2 id="modules">Modules</h2>
+<p>Language-level support for modules for component definition.  Codifies patterns from popular JavaScript module loaders (AMD, CommonJS). Runtime behaviour defined by a host-defined default loader.  Implicitly async model – no code executes until requested modules are available and processed.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// lib/math.js</span>
+<span class="kr">export</span> <span class="kd">function</span> <span class="nx">sum</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kr">export</span> <span class="kd">var</span> <span class="nx">pi</span> <span class="o">=</span> <span class="mf">3.141593</span><span class="p">;</span>
+</code></pre>
+</div>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// app.js</span>
+<span class="kr">import</span> <span class="o">*</span> <span class="nx">as</span> <span class="nx">math</span> <span class="nx">from</span> <span class="s2">"lib/math"</span><span class="p">;</span>
+<span class="nx">alert</span><span class="p">(</span><span class="s2">"2π = "</span> <span class="o">+</span> <span class="nx">math</span><span class="p">.</span><span class="nx">sum</span><span class="p">(</span><span class="nx">math</span><span class="p">.</span><span class="nx">pi</span><span class="p">,</span> <span class="nx">math</span><span class="p">.</span><span class="nx">pi</span><span class="p">));</span>
+</code></pre>
+</div>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// otherApp.js</span>
+<span class="kr">import</span> <span class="p">{</span><span class="nx">sum</span><span class="p">,</span> <span class="nx">pi</span><span class="p">}</span> <span class="nx">from</span> <span class="s2">"lib/math"</span><span class="p">;</span>
+<span class="nx">alert</span><span class="p">(</span><span class="s2">"2π = "</span> <span class="o">+</span> <span class="nx">sum</span><span class="p">(</span><span class="nx">pi</span><span class="p">,</span> <span class="nx">pi</span><span class="p">));</span>
+</code></pre>
+</div>
+
+<p>Some additional features include <code class="highlighter-rouge">export default</code> and <code class="highlighter-rouge">export *</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// lib/mathplusplus.js</span>
+<span class="kr">export</span> <span class="o">*</span> <span class="nx">from</span> <span class="s2">"lib/math"</span><span class="p">;</span>
+<span class="kr">export</span> <span class="kd">var</span> <span class="nx">e</span> <span class="o">=</span> <span class="mf">2.71828182846</span><span class="p">;</span>
+<span class="kr">export</span> <span class="k">default</span> <span class="kd">function</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">x</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// app.js</span>
+<span class="kr">import</span> <span class="nx">ln</span><span class="p">,</span> <span class="p">{</span><span class="nx">pi</span><span class="p">,</span> <span class="nx">e</span><span class="p">}</span> <span class="nx">from</span> <span class="s2">"lib/mathplusplus"</span><span class="p">;</span>
+<span class="nx">alert</span><span class="p">(</span><span class="s2">"2π = "</span> <span class="o">+</span> <span class="nx">ln</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="o">*</span><span class="nx">pi</span><span class="o">*</span><span class="mi">2</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<h2 id="module-loaders">Module Loaders</h2>
+<p>Module loaders support:<br />
+- Dynamic loading<br />
+- State isolation<br />
+- Global namespace isolation<br />
+- Compilation hooks<br />
+- Nested virtualization</p>
+
+<p>The default module loader can be configured, and new loaders can be constructed to evaluate and load code in isolated or constrained contexts.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// Dynamic loading – ‘System’ is default loader</span>
+<span class="nx">System</span><span class="p">.</span><span class="kr">import</span><span class="p">(</span><span class="s1">'lib/math'</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">alert</span><span class="p">(</span><span class="s2">"2π = "</span> <span class="o">+</span> <span class="nx">m</span><span class="p">.</span><span class="nx">sum</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">pi</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">pi</span><span class="p">));</span>
+<span class="p">});</span>
+
+<span class="c1">// Create execution sandboxes – new Loaders</span>
+<span class="kd">var</span> <span class="nx">loader</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Loader</span><span class="p">({</span>
+  <span class="na">global</span><span class="p">:</span> <span class="nx">fixup</span><span class="p">(</span><span class="nb">window</span><span class="p">)</span> <span class="c1">// replace ‘console.log’</span>
+<span class="p">});</span>
+<span class="nx">loader</span><span class="p">.</span><span class="nb">eval</span><span class="p">(</span><span class="s2">"console.log('hello world!');"</span><span class="p">);</span>
+
+<span class="c1">// Directly manipulate module cache</span>
+<span class="nx">System</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'jquery'</span><span class="p">);</span>
+<span class="nx">System</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'jquery'</span><span class="p">,</span> <span class="nx">Module</span><span class="p">({</span><span class="na">$</span><span class="p">:</span> <span class="nx">$</span><span class="p">}));</span> <span class="c1">// WARNING: not yet finalized</span>
+</code></pre>
+</div>
+
+<h2 id="map--set--weakmap--weakset">Map + Set + WeakMap + WeakSet</h2>
+<p>Efficient data structures for common algorithms.  WeakMaps provides leak-free object-key’d side tables.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// Sets</span>
+<span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Set</span><span class="p">();</span>
+<span class="nx">s</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="s2">"hello"</span><span class="p">).</span><span class="nx">add</span><span class="p">(</span><span class="s2">"goodbye"</span><span class="p">).</span><span class="nx">add</span><span class="p">(</span><span class="s2">"hello"</span><span class="p">);</span>
+<span class="nx">s</span><span class="p">.</span><span class="nx">size</span> <span class="o">===</span> <span class="mi">2</span><span class="p">;</span>
+<span class="nx">s</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="s2">"hello"</span><span class="p">)</span> <span class="o">===</span> <span class="kc">true</span><span class="p">;</span>
+
+<span class="c1">// Maps</span>
+<span class="kd">var</span> <span class="nx">m</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Map</span><span class="p">();</span>
+<span class="nx">m</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">"hello"</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span>
+<span class="nx">m</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="mi">34</span><span class="p">);</span>
+<span class="nx">m</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">34</span><span class="p">;</span>
+
+<span class="c1">// Weak Maps</span>
+<span class="kd">var</span> <span class="nx">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WeakMap</span><span class="p">();</span>
+<span class="nx">wm</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="p">{</span> <span class="na">extra</span><span class="p">:</span> <span class="mi">42</span> <span class="p">});</span>
+<span class="nx">wm</span><span class="p">.</span><span class="nx">size</span> <span class="o">===</span> <span class="kc">undefined</span>
+
+<span class="c1">// Weak Sets</span>
+<span class="kd">var</span> <span class="nx">ws</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WeakSet</span><span class="p">();</span>
+<span class="nx">ws</span><span class="p">.</span><span class="nx">add</span><span class="p">({</span> <span class="na">data</span><span class="p">:</span> <span class="mi">42</span> <span class="p">});</span>
+<span class="c1">// Because the added object has no other references, it will not be held in the set</span>
+</code></pre>
+</div>
+
+<h2 id="proxies">Proxies</h2>
+<p>Proxies enable creation of objects with the full range of behaviors available to host objects.  Can be used for interception, object virtualization, logging/profiling, etc.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// Proxying a normal object</span>
+<span class="kd">var</span> <span class="nx">target</span> <span class="o">=</span> <span class="p">{};</span>
+<span class="kd">var</span> <span class="nx">handler</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">get</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">receiver</span><span class="p">,</span> <span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="err">`</span><span class="nx">Hello</span><span class="p">,</span> <span class="nx">$</span><span class="p">{</span><span class="nx">name</span><span class="p">}</span><span class="o">!</span><span class="err">`</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Proxy</span><span class="p">(</span><span class="nx">target</span><span class="p">,</span> <span class="nx">handler</span><span class="p">);</span>
+<span class="nx">p</span><span class="p">.</span><span class="nx">world</span> <span class="o">===</span> <span class="s1">'Hello, world!'</span><span class="p">;</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// Proxying a function object</span>
+<span class="kd">var</span> <span class="nx">target</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="s1">'I am the target'</span><span class="p">;</span> <span class="p">};</span>
+<span class="kd">var</span> <span class="nx">handler</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">apply</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">receiver</span><span class="p">,</span> <span class="p">...</span><span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="s1">'I am the proxy'</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Proxy</span><span class="p">(</span><span class="nx">target</span><span class="p">,</span> <span class="nx">handler</span><span class="p">);</span>
+<span class="nx">p</span><span class="p">()</span> <span class="o">===</span> <span class="s1">'I am the proxy'</span><span class="p">;</span>
+</code></pre>
+</div>
+
+<p>There are traps available for all of the runtime-level meta-operations:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">handler</span> <span class="o">=</span>
+<span class="p">{</span>
+  <span class="na">get</span><span class="p">:...,</span>
+  <span class="na">set</span><span class="p">:...,</span>
+  <span class="na">has</span><span class="p">:...,</span>
+  <span class="na">deleteProperty</span><span class="p">:...,</span>
+  <span class="na">apply</span><span class="p">:...,</span>
+  <span class="na">construct</span><span class="p">:...,</span>
+  <span class="na">getOwnPropertyDescriptor</span><span class="p">:...,</span>
+  <span class="na">defineProperty</span><span class="p">:...,</span>
+  <span class="na">getPrototypeOf</span><span class="p">:...,</span>
+  <span class="na">setPrototypeOf</span><span class="p">:...,</span>
+  <span class="na">enumerate</span><span class="p">:...,</span>
+  <span class="na">ownKeys</span><span class="p">:...,</span>
+  <span class="na">preventExtensions</span><span class="p">:...,</span>
+  <span class="na">isExtensible</span><span class="p">:...</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<h2 id="symbols">Symbols</h2>
+<p>Symbols enable access control for object state.  Symbols allow properties to be keyed by either <code class="highlighter-rouge">string</code> (as in ES5) or <code class="highlighter-rouge">symbol</code>.  Symbols are a new primitive type. Optional <code class="highlighter-rouge">description</code> parameter used in debugging - but is not part of identity.  Symbols are unique (like gensym), but not private since they are exposed via reflection features like <code class="highlighter-rouge">Object.getOwnPropertySymbols</code>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">MyClass</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+  <span class="c1">// module scoped symbol</span>
+  <span class="kd">var</span> <span class="nx">key</span> <span class="o">=</span> <span class="nx">Symbol</span><span class="p">(</span><span class="s2">"key"</span><span class="p">);</span>
+
+  <span class="kd">function</span> <span class="nx">MyClass</span><span class="p">(</span><span class="nx">privateData</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">privateData</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nx">MyClass</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">doStuff</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="p">...</span> <span class="k">this</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="p">...</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+
+  <span class="k">return</span> <span class="nx">MyClass</span><span class="p">;</span>
+<span class="p">})();</span>
+
+<span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MyClass</span><span class="p">(</span><span class="s2">"hello"</span><span class="p">)</span>
+<span class="nx">c</span><span class="p">[</span><span class="s2">"key"</span><span class="p">]</span> <span class="o">===</span> <span class="kc">undefined</span>
+</code></pre>
+</div>
+
+<h2 id="subclassable-built-ins">Subclassable Built-ins</h2>
+<p>In ES6, built-ins like <code class="highlighter-rouge">Array</code>, <code class="highlighter-rouge">Date</code> and DOM <code class="highlighter-rouge">Element</code>s can be subclassed.</p>
+
+<p>Object construction for a function named <code class="highlighter-rouge">Ctor</code> now uses two-phases (both virtually dispatched):<br />
+- Call <code class="highlighter-rouge">Ctor[@@create]</code> to allocate the object, installing any special behavior<br />
+- Invoke constructor on new instance to initialize</p>
+
+<p>The known <code class="highlighter-rouge">@@create</code> symbol is available via <code class="highlighter-rouge">Symbol.create</code>.  Built-ins now expose their <code class="highlighter-rouge">@@create</code> explicitly.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// Pseudo-code of Array</span>
+<span class="kr">class</span> <span class="nb">Array</span> <span class="p">{</span>
+    <span class="nx">constructor</span><span class="p">(...</span><span class="nx">args</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+    <span class="kr">static</span> <span class="p">[</span><span class="nx">Symbol</span><span class="p">.</span><span class="nx">create</span><span class="p">]()</span> <span class="p">{</span>
+        <span class="c1">// Install special [[DefineOwnProperty]]</span>
+        <span class="c1">// to magically update 'length'</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// User code of Array subclass</span>
+<span class="kr">class</span> <span class="nx">MyArray</span> <span class="kr">extends</span> <span class="nb">Array</span> <span class="p">{</span>
+    <span class="nx">constructor</span><span class="p">(...</span><span class="nx">args</span><span class="p">)</span> <span class="p">{</span> <span class="kr">super</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Two-phase 'new':</span>
+<span class="c1">// 1) Call @@create to allocate object</span>
+<span class="c1">// 2) Invoke constructor on new instance</span>
+<span class="kd">var</span> <span class="nx">arr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MyArray</span><span class="p">();</span>
+<span class="nx">arr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+<span class="nx">arr</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">2</span>
+</code></pre>
+</div>
+
+<h2 id="math--number--string--array--object-apis">Math + Number + String + Array + Object APIs</h2>
+<p>Many new library additions, including core Math libraries, Array conversion helpers, String helpers, and Object.assign for copying.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nb">Number</span><span class="p">.</span><span class="nx">EPSILON</span>
+<span class="nb">Number</span><span class="p">.</span><span class="nx">isInteger</span><span class="p">(</span><span class="kc">Infinity</span><span class="p">)</span> <span class="c1">// false</span>
+<span class="nb">Number</span><span class="p">.</span><span class="nb">isNaN</span><span class="p">(</span><span class="s2">"NaN"</span><span class="p">)</span> <span class="c1">// false</span>
+
+<span class="nb">Math</span><span class="p">.</span><span class="nx">acosh</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1">// 1.762747174039086</span>
+<span class="nb">Math</span><span class="p">.</span><span class="nx">hypot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="c1">// 5</span>
+<span class="nb">Math</span><span class="p">.</span><span class="nx">imul</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="c1">// 2</span>
+
+<span class="s2">"abcde"</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s2">"cd"</span><span class="p">)</span> <span class="c1">// true</span>
+<span class="s2">"abc"</span><span class="p">.</span><span class="nx">repeat</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1">// "abcabcabc"</span>
+
+<span class="nb">Array</span><span class="p">.</span><span class="nx">from</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelectorAll</span><span class="p">(</span><span class="s1">'*'</span><span class="p">))</span> <span class="c1">// Returns a real Array</span>
+<span class="nb">Array</span><span class="p">.</span><span class="nx">of</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="c1">// Similar to new Array(...), but without special one-arg behavior</span>
+<span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">].</span><span class="nx">fill</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c1">// [0,7,7]</span>
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">find</span><span class="p">(</span><span class="nx">x</span> <span class="o">=&gt;</span> <span class="nx">x</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span> <span class="c1">// 3</span>
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">findIndex</span><span class="p">(</span><span class="nx">x</span> <span class="o">=&gt;</span> <span class="nx">x</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="c1">// 1</span>
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">].</span><span class="nx">copyWithin</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="c1">// [1, 2, 3, 1, 2]</span>
+<span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">].</span><span class="nx">entries</span><span class="p">()</span> <span class="c1">// iterator [0, "a"], [1,"b"], [2,"c"]</span>
+<span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">].</span><span class="nx">keys</span><span class="p">()</span> <span class="c1">// iterator 0, 1, 2</span>
+<span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">].</span><span class="nx">values</span><span class="p">()</span> <span class="c1">// iterator "a", "b", "c"</span>
+
+<span class="nb">Object</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span><span class="nx">Point</span><span class="p">,</span> <span class="p">{</span> <span class="na">origin</span><span class="p">:</span> <span class="k">new</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="p">})</span>
+</code></pre>
+</div>
+
+<h2 id="binary-and-octal-literals">Binary and Octal Literals</h2>
+<p>Two new numeric literal forms are added for binary (<code class="highlighter-rouge">b</code>) and octal (<code class="highlighter-rouge">o</code>).</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="mi">0</span><span class="nx">b111110111</span> <span class="o">===</span> <span class="mi">503</span> <span class="c1">// true</span>
+<span class="mi">0</span><span class="nx">o767</span> <span class="o">===</span> <span class="mi">503</span> <span class="c1">// true</span>
+</code></pre>
+</div>
+
+<h2 id="promises">Promises</h2>
+<p>Promises are a library for asynchronous programming.  Promises are a first class representation of a value that may be made available in the future.  Promises are used in many existing JavaScript libraries.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">timeout</span><span class="p">(</span><span class="nx">duration</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">duration</span><span class="p">);</span>
+    <span class="p">})</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="nx">timeout</span><span class="p">(</span><span class="mi">1000</span><span class="p">).</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">timeout</span><span class="p">(</span><span class="mi">2000</span><span class="p">);</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">"hmm"</span><span class="p">);</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span><span class="nx">timeout</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="nx">timeout</span><span class="p">(</span><span class="mi">200</span><span class="p">)]);</span>
+<span class="p">})</span>
+</code></pre>
+</div>
+
+<h2 id="reflect-api">Reflect API</h2>
+<p>Full reflection API exposing the runtime-level meta-operations on objects.  This is effectively the inverse of the Proxy API, and allows making calls corresponding to the same meta-operations as the proxy traps.  Especially useful for implementing proxies.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">// No sample yet</span>
+</code></pre>
+</div>
+
+<h2 id="tail-calls">Tail Calls</h2>
+<p>Calls in tail-position are guaranteed to not grow the stack unboundedly.  Makes recursive algorithms safe in the face of unbounded inputs.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">factorial</span><span class="p">(</span><span class="nx">n</span><span class="p">,</span> <span class="nx">acc</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="s1">'use strict'</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="k">return</span> <span class="nx">acc</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">factorial</span><span class="p">(</span><span class="nx">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">n</span> <span class="o">*</span> <span class="nx">acc</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Stack overflow in most implementations today,</span>
+<span class="c1">// but safe on arbitrary inputs in ES6</span>
+<span class="nx">factorial</span><span class="p">(</span><span class="mi">100000</span><span class="p">)</span>
+</code></pre>
+</div>
+</div>
+  </div>
+
+  <footer></footer>
+
+</article>
+<script src="/assets/js/anchor.min.js"></script>
+<script src="/assets/js/jquery.min.js"></script>
+<!--
+<script src="/assets/js/clipboard.min.js"></script>
+-->
+
+<script>
+  anchors.options = {
+    placement: 'left'
+  };
+  anchors.add('.page-content h1, .page-content h2, .page-content h3, .page-content h4, .page-content h5, .page-content h6');
+
+  /*
+  $('pre.highlight').after($('<button class="btn-copy">Copy</button>'));
+  var clipboard = new Clipboard('.btn-copy', {
+    text: function(trigger) {
+      return $(trigger).prev().text();
+    }
+  });
+  */
+
+  (function() {
+    var $toc = $('#toc'),
+      $nav = $('<ul>'),
+      track = [];
+
+    function getParentNav(level) {
+      var i = track.length,
+        $el = $('<li>');
+      if (!track.length) {
+        return $el.appendTo($nav);
+      }
+      while (i--) {
+        var last = track[i];
+        if (level === last.level) {
+          return $el.appendTo(last.$el.closest('ul'));
+        }
+        if (level - last.level == 1) {
+          return $el.appendTo($('<ul>').appendTo(last.$el));
+        }
+      }
+    }
+
+    function generateTableOfContents(els) {
+      var test, href;
+      for (var i = 0; i < els.length; i++) {
+        test = els[i].textContent;
+        href = els[i].querySelector('.anchorjs-link').getAttribute('href');
+        addNavItem(href, test, els[i].tagName.slice(1));
+      }
+    }
+
+    function addNavItem(href, text, level) {
+      var $a = $('<a href="' + href + '">' + text + '</a>'),
+        $el = getParentNav(level);
+      if (!$el) {
+        return;
+      }
+      $el.append($a);
+      track.push({
+        level: level,
+        $el: $el
+      });
+    }
+
+    generateTableOfContents(anchors.elements);
+    $nav.appendTo($toc);
+  })();
+
+  $(document.body).on('keydown', function(e) {
+    if (e.altKey && e.keyCode == 36) {
+      location.href = '/';
+      e.preventDefault();
+    }
+  });
+</script>
+
+
+  </body>
+</html>
