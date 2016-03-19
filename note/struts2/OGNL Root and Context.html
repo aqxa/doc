@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Struts2 OGNL Context</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+  <body>
+    <article class="page">
+  <header class="page-header">
+    <div class="container">
+      <h1 class="page-title">Struts2 OGNL Context</h1>
+      <p class="page-tags">
+        
+        <span class="tag">Java</span>
+        
+        <span class="tag">Web</span>
+        
+        <span class="tag">MVC</span>
+        
+        <span class="tag">Struts2</span>
+        
+        <span class="tag">OGNL</span>
+        
+        <span class="tag">Context</span>
+        
+      </p>
+      <p class="page-meta">
+        <time datetime="1970-01-01T00:00:00+08:00">Jan 1, 1970</time>
+      </p>
+    </div>
+  </header>
+
+  
+  <div class="container">
+    <h1>Table Of Contents</h1>
+    <div id="toc"></div>
+  </div>
+  
+
+  <div class="page-content">
+    <div class="container"><p>参考：<a href="https://struts.apache.org/docs/ognl-basics.html">https://struts.apache.org/docs/ognl-basics.html</a></p>
+
+<h1 id="xwork-specific-language-features">XWork-specific language features</h1>
+
+<p>The biggest addition that XWork provides on top of OGNL is the support for the ValueStack.While OGNL operates under the assumption there is only one “root”, XWork’s ValueStack concept requires there be many “roots”.(XWork 特定的 OGNL 与标准 OGNL 最大的区别是 XWork 的 ValueStack 引入了一个多 roots 的概念，这个多 roots 其实就是用 ArrayList 实现的一个先进先出的栈结构。)</p>
+
+<p>(下面说明标准 OGNL 中 <code class="highlighter-rouge">root</code> 和 <code class="highlighter-rouge">context</code> 的概念。)</p>
+
+<p>For example, suppose we are using standard OGNL (not using XWork) and there are two objects in the OgnlContext map: “foo” -&gt; foo and “bar” -&gt; bar and that the foo object is also configured to be the single root object. The following code illustrates how OGNL deals with these three situations:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="err">#</span><span class="n">foo</span><span class="o">.</span><span class="na">blah</span> <span class="c1">// returns foo.getBlah()</span>
+<span class="err">#</span><span class="n">bar</span><span class="o">.</span><span class="na">blah</span> <span class="c1">// returns bar.getBlah()</span>
+<span class="n">blah</span>      <span class="c1">// returns foo.getBlah() because foo is the root</span>
+</code></pre>
+</div>
+
+<p>What this means is that <strong>OGNL allows many objects in the context, but unless the object you are trying to access is the root, it must be prepended with a namespaces</strong> such as <code class="highlighter-rouge">@bar</code>. Now let’s talk about how XWork is a little different…</p>
+
+<p>(下面说明在 XWork 中是什么样的。)</p>
+
+<p>In XWork, the entire ValueStack is the root object in the context. Rather than having your expressions get the object you want from the stack and then get properties from that (ie: peek().blah), XWork has a special OGNL PropertyAccessor that will automatically look at the all entries in the stack (from the top down) until it finds an object with the property you are looking for.</p>
+
+<p>For example, suppose the stack contains two objects: <code class="highlighter-rouge">Animal</code> and <code class="highlighter-rouge">Person</code>. Both objects have a <code class="highlighter-rouge">name</code> property, <code class="highlighter-rouge">Animal</code> has a <code class="highlighter-rouge">species</code> property, and <code class="highlighter-rouge">Person</code> has a <code class="highlighter-rouge">salary</code> property. <code class="highlighter-rouge">Animal</code> is on the top of the stack, and <code class="highlighter-rouge">Person</code> is below it. The follow code fragments help you get an idea of what is going on here:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">species</span>    <span class="c1">// call to animal.getSpecies()</span>
+<span class="n">salary</span>     <span class="c1">// call to person.getSalary()</span>
+<span class="n">name</span>       <span class="c1">// call to animal.getName() because animal is on the top</span>
+</code></pre>
+</div>
+
+<p>In the last example, there was a tie and so the animal’s name was returned. Usually this is the desired effect, but sometimes you want the property of a lower-level object. To do this, XWork has added support for indexes on the ValueStack. All you have to do is:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="o">[</span><span class="mi">0</span><span class="o">].</span><span class="na">name</span>   <span class="c1">// call to animal.getName()</span>
+<span class="o">[</span><span class="mi">1</span><span class="o">].</span><span class="na">name</span>   <span class="c1">// call to person.getName()</span>
+</code></pre>
+</div>
+
+<p>With expression like [0] … [3] etc. Struts 2 will cut the stack and still return back a <code class="highlighter-rouge">CompoundRoot</code> object. To get the top of that particular stack cut, use <code class="highlighter-rouge">[0].top</code></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>ognl expression</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="highlighter-rouge">[0].top</code></td>
+      <td>would get the top of the stack cut starting from element 0 in the stack (similar to top in this case)</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">[1].top</code></td>
+      <td>would get the top of the stack cut starting from element 1 in the stack</td>
+    </tr>
+  </tbody>
+</table>
+
+<h1 id="struts-2-named-objects">Struts 2 Named Objects</h1>
+
+<p>Struts 2 places request parameters and request, session, and application attributes on the OGNL stack. They may be accessed as shown below. (Stack 和 context 傻傻分不清)</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>name</th>
+      <th>value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="highlighter-rouge">#action['foo']</code> or <code class="highlighter-rouge">#action.foo</code></td>
+      <td>current action getter (getFoo())</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">#parameters['foo']</code> or <code class="highlighter-rouge">#parameters.foo</code></td>
+      <td>request parameter [‘foo’] (request.getParameter())</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">#request['foo']</code> or <code class="highlighter-rouge">#request.foo</code></td>
+      <td>request attribute [‘foo’] (request.getAttribute())</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">#session['foo']</code> or <code class="highlighter-rouge">#session.foo</code></td>
+      <td>session attribute ‘foo’</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">#application['foo']</code> or <code class="highlighter-rouge">#application.foo</code></td>
+      <td>ServletContext attributes ‘foo’</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">#attr['foo']</code> or <code class="highlighter-rouge">#attr.foo</code></td>
+      <td>Access to PageContext if available, otherwise searches request/session/application respectively</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+  </div>
+
+  <footer></footer>
+
+</article>
+<script src="/assets/js/anchor.min.js"></script>
+<script src="/assets/js/jquery.min.js"></script>
+<!--
+<script src="/assets/js/clipboard.min.js"></script>
+-->
+
+<script>
+  anchors.options = {
+    placement: 'left'
+  };
+  anchors.add('.page-content h1, .page-content h2, .page-content h3, .page-content h4, .page-content h5, .page-content h6');
+
+  /*
+  $('pre.highlight').after($('<button class="btn-copy">Copy</button>'));
+  var clipboard = new Clipboard('.btn-copy', {
+    text: function(trigger) {
+      return $(trigger).prev().text();
+    }
+  });
+  */
+
+  (function() {
+    var $toc = $('#toc'),
+      $nav = $('<ul>'),
+      track = [];
+
+    function getParentNav(level) {
+      var i = track.length,
+        $el = $('<li>');
+      if (!track.length) {
+        return $el.appendTo($nav);
+      }
+      while (i--) {
+        var last = track[i];
+        if (level === last.level) {
+          return $el.appendTo(last.$el.closest('ul'));
+        }
+        if (level - last.level == 1) {
+          return $el.appendTo($('<ul>').appendTo(last.$el));
+        }
+      }
+    }
+
+    function generateTableOfContents(els) {
+      var test, href;
+      for (var i = 0; i < els.length; i++) {
+        test = els[i].textContent;
+        href = els[i].querySelector('.anchorjs-link').getAttribute('href');
+        addNavItem(href, test, els[i].tagName.slice(1));
+      }
+    }
+
+    function addNavItem(href, text, level) {
+      var $a = $('<a href="' + href + '">' + text + '</a>'),
+        $el = getParentNav(level);
+      if (!$el) {
+        return;
+      }
+      $el.append($a);
+      track.push({
+        level: level,
+        $el: $el
+      });
+    }
+
+    generateTableOfContents(anchors.elements);
+    $nav.appendTo($toc);
+  })();
+
+  $(document.body).on('keydown', function(e) {
+    if (e.altKey && e.keyCode == 36) {
+      location.href = '/';
+      e.preventDefault();
+    }
+  });
+</script>
+
+
+  </body>
+</html>
